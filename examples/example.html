@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ví dụ Decision Tree</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Literata:opsz,wght@7..72,600;7..72,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="example.css" />
+</head>
+<body class="example-page">
+  <header class="example-top">
+    <a class="back-link" href="../index.html#15">← Về slides</a>
+    <div class="example-title-wrap">
+      <p class="eyebrow" id="ex-eyebrow">Ứng dụng</p>
+      <h1 id="ex-title">Ví dụ</h1>
+      <p class="lead" id="ex-blurb"></p>
+    </div>
+    <nav class="example-nav" id="ex-nav" aria-label="Các ứng dụng"></nav>
+  </header>
+
+  <main class="example-main">
+    <section class="example-panel">
+      <h2>Bảng dữ liệu mẫu</h2>
+      <div class="example-table-wrap">
+        <table>
+          <thead id="ex-thead"></thead>
+          <tbody id="ex-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+    <section class="example-panel">
+      <h2>Cây quyết định học từ bảng</h2>
+      <div class="example-tree-wrap" id="ex-tree"></div>
+      <p class="example-note" id="ex-note"></p>
+    </section>
+  </main>
+
+  <script src="apps.js"></script>
+  <script src="tree.js"></script>
+  <script src="example.js"></script>
+</body>
+</html>

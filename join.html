@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Tham gia demo — Decision Tree</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Literata:opsz,wght@7..72,600;7..72,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="join.css" />
+</head>
+<body>
+  <main class="join-page">
+    <header>
+      <p class="eyebrow">Live demo</p>
+      <h1>Có tham dự buổi thuyết trình?</h1>
+      <p class="lead">Nhập tên và chọn các trường — cây quyết định trên màn hình sẽ cập nhật ngay.</p>
+    </header>
+
+    <form id="join-form" class="join-form" autocomplete="on">
+      <label>
+        <span>Tên của bạn</span>
+        <input type="text" name="name" id="name" maxlength="40" required placeholder="VD: An" />
+      </label>
+
+      <fieldset>
+        <legend>Hôm nay rảnh?</legend>
+        <div class="chips" data-group="free">
+          <label class="chip"><input type="radio" name="free" value="Bận" required /><span>Bận</span></label>
+          <label class="chip"><input type="radio" name="free" value="Rảnh" /><span>Rảnh</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Thích chủ đề này?</legend>
+        <div class="chips" data-group="interest">
+          <label class="chip yes"><input type="radio" name="interest" value="Có" required /><span>Có</span></label>
+          <label class="chip no"><input type="radio" name="interest" value="Không" /><span>Không</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Hình thức?</legend>
+        <div class="chips" data-group="mode">
+          <label class="chip"><input type="radio" name="mode" value="Online" required /><span>Online</span></label>
+          <label class="chip"><input type="radio" name="mode" value="Offline" /><span>Offline</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Tham dự?</legend>
+        <div class="chips" data-group="attend">
+          <label class="chip yes"><input type="radio" name="attend" value="Có" required /><span>Có</span></label>
+          <label class="chip no"><input type="radio" name="attend" value="Không" /><span>Không</span></label>
+        </div>
+      </fieldset>
+
+      <button type="submit" id="submit-btn">Gửi vào bảng</button>
+      <p class="status" id="status" role="status"></p>
+    </form>
+
+    <section class="live-mini">
+      <h2>Bảng đang sống · <span id="row-count">0</span> mẫu</h2>
+      <div class="mini-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Tên</th>
+              <th>Rảnh?</th>
+              <th>Thích?</th>
+              <th>Hình thức</th>
+              <th>Tham dự</th>
+            </tr>
+          </thead>
+          <tbody id="mini-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="join.js"></script>
+</body>
+</html>
