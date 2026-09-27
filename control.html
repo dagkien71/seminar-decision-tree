@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <title>Điều khiển slide — Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Literata:opsz,wght@7..72,600;7..72,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="control.css" />
+</head>
+<body>
+  <div class="ctrl-app">
+    <header class="ctrl-top">
+      <div>
+        <p class="eyebrow">Admin · Remote</p>
+        <h1>Điều khiển slide</h1>
+        <p class="ctrl-sub">
+          Chọn trang → màn hình chiếu nhảy đúng slide.
+          Trình duyệt <strong>không cho</strong> web bắt nút âm lượng — dùng nút dưới hoặc tai nghe (Next/Prev).
+        </p>
+      </div>
+      <div class="ctrl-status" id="status">Đang kết nối…</div>
+    </header>
+
+    <button type="button" class="ctrl-hw" id="btn-hw">
+      Bật điều khiển tai nghe / remote
+    </button>
+
+    <ul class="ctrl-list" id="list"></ul>
+  </div>
+
+  <nav class="ctrl-nav" aria-label="Điều hướng slide">
+    <button type="button" class="ctrl-btn" id="btn-prev">
+      <span class="ctrl-btn-main">← Trước</span>
+    </button>
+    <div class="ctrl-now" id="now">—</div>
+    <button type="button" class="ctrl-btn primary" id="btn-next">
+      <span class="ctrl-btn-main">Sau →</span>
+    </button>
+  </nav>
+
+  <audio id="hw-audio" loop playsinline preload="auto" hidden></audio>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="control.js"></script>
+</body>
+</html>

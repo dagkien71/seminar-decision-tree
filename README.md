@@ -10,9 +10,30 @@ npm start
 ```
 
 Mở:
-- Slides: http://localhost:3080/
-- Join (điện thoại): http://localhost:3080/join.html  
+- Slides (màn hình chiếu): http://localhost:3000/
+- Control (admin chọn slide): http://localhost:3000/control
+- Setting (ẩn/hiện + sửa text): http://localhost:3000/setting
+- Join (điện thoại): http://localhost:3000/join.html  
   (hoặc quét QR trên slide **Live demo** / dùng IP LAN cùng WiFi)
+
+## Điều khiển từ xa
+
+1. Mở **Slides** trên máy chiếu
+2. Mở **Control** trên điện thoại / laptop phụ
+3. Bấm slide trong danh sách (hoặc ← →) → màn hình chiếu nhảy đúng trang
+
+Cả hai trang đồng bộ realtime qua Socket.IO.
+
+## Tuỳ chỉnh slide (kiểu PowerPoint)
+
+Mở http://localhost:3000/setting
+
+1. Dải **thumbnail** bên trái — chọn slide, nút Hiện/Ẩn từng slide
+2. **Canvas giữa** — bấm trực tiếp vào chữ trên slide để sửa (như PowerPoint)
+3. **Lưu** (hoặc `Ctrl/Cmd+S`) → refresh trang slides để trình chiếu
+4. **Reset gốc** xoá toàn bộ tuỳ chỉnh
+
+Cấu hình lưu tại `data/settings.json`.
 
 ## Điều khiển slide
 

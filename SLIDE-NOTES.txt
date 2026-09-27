@@ -1,0 +1,492 @@
+DECISION TREE — NỘI DUNG SLIDE
+Flow: Công thức → Đọc ký hiệu (ví dụ nhỏ) → Dataset → Tính → (Gini tương tự) → Cây
+Tổng: 31
+Ngày: 2026-09-26
+========================================================================
+
+SLIDE 01  |  Mở đầu  (open)
+------------------------------------------------------------------------
+Machine Learning · Seminar
+Decision Tree
+Cây quyết định — thuật toán học có giám sát dễ hiểu nhất
+Ví dụ: Có tham dự buổi thuyết trình Decision Tree?
+[Sơ đồ]
+· Bận
+· Rảnh
+· Có
+· Không
+· Hôm nay rảnh?
+· Không tham dự
+· Thích chủ đề này?
+· Tham dự!
+· Bỏ qua
+← → hoặc Space để chuyển slide
+Quét để mở slide
+========================================================================
+
+SLIDE 02  |  Mục lục  (agenda)
+------------------------------------------------------------------------
+Nội dung
+Mục lục
+• 01 Decision Tree là gì?
+• 02 Cấu trúc của một cây
+• 03 Ví dụ đời thường
+• 04 Phân loại vs Hồi quy
+• 05 Dataset picnic
+• 06 Cách 1 · Entropy
+• 07 Cách 2 · Gini
+• 08 Thuật toán · ưu nhược · overfitting
+• 09 Ứng dụng thực tế
+(Slide “Quy trình / learning”, “Đọc công thức / entropy-map”, “Đọc Gini / gini-map”, “Live demo” ẩn mặc định — hiện lại ở /setting nếu cần.)
+(Mục 06–07: dù nhiều slide tính toán, mục lục chỉ ghi gọn 1 dòng mỗi cách.)
+========================================================================
+
+SLIDE 03  |  Khái niệm  (concept)
+------------------------------------------------------------------------
+Khái niệm
+Decision Tree là gì?
+Mô hình học máy có giám sát: dự đoán bằng cách
+hỏi lần lượt các câu Có / Không trên đặc trưng của dữ liệu.
+(In đậm: “có giám sát” + “Có / Không” — phần còn lại không cần.)
+(Không nhấn “flowchart chuẩn” — chỉ là cách hình dung.)
+Ý tưởng cốt lõi
+Chia dữ liệu thành nhóm ngày càng “thuần” hơn.
+Mỗi bước, máy chọn câu hỏi làm giảm độ lẫn nhiều nhất
+— rồi lặp lại trên từng nhóm con cho đến khi đủ điều kiện dừng.
+Đầu vào → Đầu ra
+Input: đặc trưng (tuổi, thu nhập, thời tiết…)
+Output: nhãn (Có/Không) hoặc số (giá nhà)
+========================================================================
+
+SLIDE 04  |  Cấu trúc  (structure)
+------------------------------------------------------------------------
+Cấu trúc
+Các thành phần của cây
+[Sơ đồ]
+· Nhánh
+· Nhánh
+· Root
+· Nút gốc
+· Internal
+· Nút quyết định
+· Internal
+· Leaf · Có
+· Leaf · Không
+· Leaf · Có
+• Root (Nút gốc) — câu hỏi / đặc trưng quan trọng nhất
+• Internal node — điểm chia tiếp theo một đặc trưng
+• Branch (Nhánh) — cạnh nối nút cha → nút con, ứng với một giá trị của điều kiện chia
+• Leaf (Nút lá) — kết quả dự đoán cuối cùng
+========================================================================
+
+SLIDE 05  |  Ví dụ đời thường  (everyday)
+------------------------------------------------------------------------
+Ví dụ dễ hiểu
+Có nên đi chơi bóng không?
+[Sơ đồ — gắn thành phần]
+· Trời mưa? (Root)
+· Có mưa (Nhánh) → Ở nhà (Leaf)
+· Không mưa (Nhánh) → Cuối tuần? (Internal)
+  · Có (Nhánh) → Đi chơi! (Leaf)
+  · Không (Nhánh) → Học bài (Leaf)
+Decision Tree được dựng theo kiểu suy nghĩ của người:
+lần lượt hỏi Có / Không rồi mới kết luận.
+========================================================================
+
+SLIDE 06  |  Hai loại  (two-types)
+------------------------------------------------------------------------
+Hai loại cây
+Cây phân loại & Cây hồi quy
+Cả hai loại cây đều hỏi lần lượt rồi mới kết luận.
+Khác nhau ở kết quả cuối: nhãn (nhóm) hay một con số.
+Classification
+Cây phân loại
+Trả lời kiểu “thuộc nhóm nào?”
+• Spam hay không spam?
+• Khách có mua hay không?
+→ Kết quả là nhóm / nhãn (Yes / No, Spam…)
+Regression
+Cây hồi quy
+Trả lời kiểu “bao nhiêu?”
+• Nhà này giá bao nhiêu?
+• Ngày mai bao nhiêu độ?
+→ Kết quả là một con số
+Cả hai đều là Decision Tree — cùng cách hỏi và chia nhánh.
+Seminar này dùng cây phân loại (tham dự / không tham dự, picnic Có / Không…).
+========================================================================
+
+SLIDE 07  |  Quy trình  (learning)  [ẨN MẶC ĐỊNH]
+------------------------------------------------------------------------
+Thuật toán học · Minh họa
+Quy trình hoạt động của Decision Tree
+(Ẩn mặc định trong settings. Hiện lại: /setting → Hiện slide.)
+(Lưu ý giảng: đây là sơ đồ tự minh họa cơ chế đệ quy — không gọi là “flowchart chuẩn”.)
+Ý chính: máy lần lượt làm 3 bước (thử → chọn → chia), rồi xét từng nhóm con.
+Nếu đủ điều kiện dừng → tạo nút lá; nếu chưa → lặp lại 3 bước trên chính nhóm con đó
+(không quay lại toàn bộ dataset).
+[Sơ đồ]
+· Bắt đầu
+· một nhóm dữ liệu
+· 1
+· Thử mọi câu hỏi
+· mọi đặc trưng
+· 2
+· Chọn câu tốt nhất
+· giảm lẫn nhiều nhất
+· 3
+· Chia thành nhánh
+· ra các nhóm con
+· với TỪNG nhóm con
+· Đủ điều kiện dừng?
+· sạch · max depth · …
+· Có →
+· Chưa →
+· Nút lá
+· dự đoán kết quả · DỪNG
+· Chia tiếp nhóm con
+· lặp lại 3 bước trên nhóm này
+· quay lại bước 1 · chỉ trên nhóm con này
+“Giảm lẫn” = sau khi chia, nhóm con thuần hơn (gần cùng một kết quả Yes/No).
+Máy so sánh các cách chia rồi chọn cách giảm độ lẫn nhiều nhất —
+đo bằng Entropy hoặc Gini (công thức ở slide sau).
+Điều kiện dừng (nói thêm nếu GV hỏi): nhóm sạch / max_depth /
+min_samples_split / mức giảm impurity quá nhỏ…
+========================================================================
+
+SLIDE 08  |  Entropy  (entropy)
+------------------------------------------------------------------------
+Công thức · Cách 1
+Entropy & Information Gain
+Đo độ lẫn của nhóm; Information Gain đo mức giảm độ lẫn sau khi chia. (Chưa gắn số liệu.)
+① Entropy — độ lẫn của tập S
+Tổng quát
+H(S) = −( Σ_i p_i · log_2(p_i) )
+Phân tích (2 lớp Yes / No)
+H(S) = −( p_Yes·log_2(p_Yes) + p_No·log_2(p_No) )
+• H(S) — Entropy của tập S (càng lớn càng lẫn)
+• S — tập dữ liệu / nhóm đang xét
+• Σ_i — cộng lần lượt theo từng lớp i
+• i — từng lớp / nhãn (vd. Yes, No)
+• p_i — tỷ lệ mẫu lớp i = (số mẫu lớp i) / |S|
+• log_2 — logarit cơ số 2 (đơn vị bit)
+• −(…) — trừ cả tổng trong ngoặc (log(p) < 0 khi 0 < p < 1)
+• H = 0 không lẫn · H = 1 khi 2 lớp 50/50
+② Information Gain — mức giảm độ lẫn khi chia theo A
+Tổng quát
+Gain(S,A) = H(S) − Σ_v (|S_v| / |S|) · H(S_v)
+Phân tích (dễ tính)
+Gain = H_before − H_after
+H_after = (n_1/N)·H_1 + … + (n_k/N)·H_k
+• A — đặc trưng dùng để chia
+• v — một giá trị của A · k — số nhánh
+• S_v — nhóm con khi A = v
+• |S| (= N) — số mẫu tập gốc
+• |S_v| (= n_j) — số mẫu nhánh j
+• |S_v| / |S| — trọng số nhánh (nhóm to nặng hơn)
+• H_before = H(S) — trước khi chia
+• H_after — Entropy trung bình có trọng số sau chia
+• Gain càng lớn → cách chia càng tốt
+========================================================================
+
+SLIDE 09  |  Đọc công thức  (entropy-map)  [ẨN MẶC ĐỊNH]
+------------------------------------------------------------------------
+Cầu nối · Cách 1
+Đọc công thức bằng một ví dụ nhỏ
+(Ẩn mặc định trong settings. Hiện lại: /setting → Hiện slide.)
+Mục tiêu: biết mỗi ký hiệu lấy số từ đâu.
+Entropy — gán ký hiệu
+Kết quả | Số mẫu
+Có (Yes) | 3
+Không (No) | 1
+Tổng | 4
+H(S) = −( Σ_i p_i · log_2(p_i) )
+• S = 4 mẫu
+• i = Có / Không
+• p_Có = 3/4
+• p_Không = 1/4
+H_after — gán ký hiệu
+Nhánh | Số mẫu | Entropy
+A = Có | 3 | H_1
+A = Không | 1 | H_2
+Tổng | 4 |
+H_after = (3/4)·H_1 + (1/4)·H_2
+• N = 4 — tổng mẫu
+• n_1 = 3 · n_2 = 1
+• H_1, H_2 — Entropy từng nhánh (chưa tính)
+• 3/4, 1/4 — trọng số n_j/N
+========================================================================
+
+SLIDE 10  |  Dataset  (step-by-step)
+------------------------------------------------------------------------
+Bảng ví dụ thật
+Dataset: Có đi picnic không?
+[ĐỘNG] Double-click bảng → sửa data; Entropy/Gain/cây/Gini tự tính lại.
+Mục đích demo: đổi nhãn để lá không thuần 100%.
+Cột cố định: Thời tiết · Độ ẩm · Gió · Picnic (Có/Không).
+# | Thời tiết | Độ ẩm | Gió | Đi picnic?
+1 | Nắng | Cao | Yếu | Không
+2 | Nắng | Cao | Mạnh | Không
+3 | Mưa | Cao | Yếu | Không
+4 | Mây | Cao | Yếu | Có
+5 | Mây | Thấp | Mạnh | Có
+6 | Nắng | Thấp | Yếu | Có
+7 | Mưa | Thấp | Mạnh | Không
+8 | Mưa | Thấp | Yếu | Có
+Cả bảng (tập S)
+• |S| = 8 dòng
+• Có = 4 · Không = 4
+• p_Yes = 4/8 = 0.5
+• p_No = 4/8 = 0.5
+Đếm theo từng đặc trưng (để so sánh)
+• Thời tiết — Nắng 3 (1 Có, 2 Không) · Mây 2 (2 Có) · Mưa 3 (1 Có, 2 Không)
+• Độ ẩm — Cao 4 (1 Có, 3 Không) · Thấp 4 (3 Có, 1 Không)
+• Gió — Yếu 5 (3 Có, 2 Không) · Mạnh 3 (1 Có, 2 Không)
+========================================================================
+
+SLIDE 11  |  Tính Entropy  (entropy-h)
+------------------------------------------------------------------------
+Áp dụng · Cách 1 · Bước 1
+Tính Entropy (H) — theo từng đặc trưng
+H = Entropy = độ lẫn của một nhóm.
+Trước hết tính H của cả bảng (H_before).
+Sau đó với từng đặc trưng, tính H của mỗi nhánh (Nắng, Mây…).
+H_before — Entropy của cả bảng
+Cả bảng: 8 mẫu · 4 Có · 4 Không
+p_Yes = 4/8 = 0.5 · p_No = 4/8 = 0.5 · log_2(0.5) = −1
+H = −( p_Yes·log_2(p_Yes) + p_No·log_2(p_No) )
+= − 0.5 · (−1) − 0.5 · (−1)
+= 0.5 + 0.5
+H_before = 1
+Thời tiết — Nắng 3 · Mây 2 · Mưa 3
+• Nắng → H_Nắng = −( (1/3)log₂(1/3)+(2/3)log₂(2/3) ) ≈ 0.918
+• Mây → H_Mây = −( 1·log₂(1)+0·log₂(0) ) = 0
+• Mưa → H_Mưa = −( (1/3)log₂(1/3)+(2/3)log₂(2/3) ) ≈ 0.918
+Độ ẩm — Cao 4 · Thấp 4
+• Cao → H_Cao = −( (1/4)log₂(1/4)+(3/4)log₂(3/4) ) ≈ 0.811
+• Thấp → H_Thấp = −( (3/4)log₂(3/4)+(1/4)log₂(1/4) ) ≈ 0.811
+Gió — Yếu 5 · Mạnh 3
+• Yếu → H_Yếu = −( (3/5)log₂(3/5)+(2/5)log₂(2/5) ) ≈ 0.971
+• Mạnh → H_Mạnh = −( (1/3)log₂(1/3)+(2/3)log₂(2/3) ) ≈ 0.918
+========================================================================
+
+SLIDE 12  |  Cách 1 · Gain  (entropy-calc)
+------------------------------------------------------------------------
+Áp dụng · Cách 1 · Bước 2
+H_after & Gain — cả 3 đặc trưng
+Gain = H_before − H_after. Nhắc lại H_before:
+H_before — cả bảng (4 Có, 4 Không / 8)
+p_Yes = p_No = 4/8 = 0.5 · log_2(0.5) = −1
+H_before = −( 0.5·(−1) + 0.5·(−1) ) = −(−1) = 1
+Thời tiết: H_after ≈ 0.689 → Gain = 1 − 0.689 ≈ 0.311
+Độ ẩm: H_after ≈ 0.811 → Gain = 1 − 0.811 ≈ 0.189
+Gió: H_after ≈ 0.951 → Gain = 1 − 0.951 ≈ 0.049
+Kết luận — chọn gốc: Gain(Thời tiết) lớn nhất → hỏi Thời tiết trước.
+Tiếp: tách bảng theo 3 nhánh rồi chia tiếp.
+========================================================================
+
+SLIDE 13  |  Bảng lọc  (entropy-filter)
+------------------------------------------------------------------------
+Áp dụng · Cách 1 · Bước 3
+Chọn Thời tiết → tách bảng thành 3 nhóm
+Không tính trên cả 8 dòng nữa — mỗi nhánh chỉ giữ dòng thuộc nhánh đó.
+[Cây đang dựng: Thời tiết → Mây=lá Có · Nắng=còn lẫn · Mưa=còn lẫn]
+Nhánh Mây — đã lọc: #4,#5 → 2/2 Có → lá Có
+Nhánh Nắng — đã lọc: #1,#2,#6 → 1 Có · 2 Không → còn lẫn
+Nhánh Mưa — đã lọc: #3,#7,#8 → 1 Có · 2 Không → còn lẫn
+========================================================================
+
+SLIDE 14  |  Nhánh Nắng  (entropy-grow)
+------------------------------------------------------------------------
+Áp dụng · Cách 1 · Bước 4
+Nhánh Nắng — tính Gain rõ từng bước
+Bảng lọc #1,#2,#6 · H_before = −( (1/3)log₂(1/3)+(2/3)log₂(2/3) ) ≈ 0.918
+Gain nếu chia theo Độ ẩm:
+  H_Cao = −( (0/2)log₂(0/2)+(2/2)log₂(2/2) )=0
+  H_Thấp = −( (1/1)log₂(1/1)+(0/1)log₂(0/1) )=0
+  H_after = (2/3)H_Cao+(1/3)H_Thấp=0 → Gain=H_before−H_after=0.918
+Gain nếu chia theo Gió:
+  H_Yếu = −( (1/2)log₂(1/2)+(1/2)log₂(1/2) )=1
+  H_Mạnh = −( (0/1)log₂(0/1)+(1/1)log₂(1/1) )=0
+  H_after = (2/3)H_Yếu+(1/3)H_Mạnh≈0.667 → Gain≈0.251
+Kết luận nhánh Nắng: hỏi Độ ẩm · Cao=Không · Thấp=Có
+========================================================================
+
+SLIDE 15  |  Nhánh Mưa  (entropy-grow-rain)
+------------------------------------------------------------------------
+Áp dụng · Cách 1 · Bước 5
+Nhánh Mưa — tính Gain rõ từng bước
+Bảng lọc #3,#7,#8 · H_before = −( (1/3)log₂(1/3)+(2/3)log₂(2/3) ) ≈ 0.918
+Gain nếu chia theo Độ ẩm:
+  H_Cao = −( (0/1)log₂(0/1)+(1/1)log₂(1/1) )=0
+  H_Thấp = −( (1/2)log₂(1/2)+(1/2)log₂(1/2) )=1
+  H_after = (1/3)H_Cao+(2/3)H_Thấp≈0.667 → Gain≈0.251
+Gain nếu chia theo Gió:
+  H_Mạnh = −( (0/1)log₂(0/1)+(1/1)log₂(1/1) )=0
+  H_Yếu = −( (1/2)log₂(1/2)+(1/2)log₂(1/2) )=1
+  H_after = (1/3)H_Mạnh+(2/3)H_Yếu≈0.667 → Gain≈0.251
+Kết luận nhánh Mưa: hỏi Độ ẩm · Cao → lá Không · Thấp còn lẫn → slide sau tính tiếp
+========================================================================
+
+SLIDE 16  |  Chia tiếp  (entropy-grow-deep)
+------------------------------------------------------------------------
+Áp dụng · Cách 1 · Bước 6
+Mưa → Độ ẩm = Thấp còn lẫn — bảng lọc + H_before + Gain (Gió)
+Yếu → lá Có · Mạnh → lá Không (tới thuần 100%)
+========================================================================
+
+SLIDE 17  |  Cây kết quả  (result-tree)
+------------------------------------------------------------------------
+Kết quả xây cây
+Cây quyết định từ dataset picnic (mỗi nút ghi số Có / Không)
+• Gốc Thời tiết: 4 Có · 4 Không
+• Mây → Có (2 Có · 0 Không)
+• Nắng → Độ ẩm (1 Có · 2 Không): Cao → Không · Thấp → Có
+• Mưa → Độ ẩm (1 Có · 2 Không): Cao → Không · Thấp → Gió (1 Có · 1 Không): Mạnh → Không · Yếu → Có
+Cây dựng xong bằng Entropy — khớp các bước tính trên bảng đã lọc. Tiếp theo: Cách 2 với Gini.
+========================================================================
+
+SLIDE 18  |  Gini  (gini)
+------------------------------------------------------------------------
+Công thức · Cách 2
+Gini Impurity & ΔGini
+Đo độ lẫn; ΔGini đo mức giảm sau khi chia. (Chưa gắn số liệu.)
+① Gini(S) = 1 − ( Σ_i (p_i)^2 )
+   2 lớp: Gini(S) = 1 − ( (p_Yes)^2 + (p_No)^2 )
+② ΔGini = Gini_before − Gini_after
+   Gini_after = (n_1/N)Gini_1 + … + (n_k/N)Gini_k
+ΔGini càng lớn → A càng tốt.
+========================================================================
+
+SLIDE 19  |  Đọc Gini  (gini-map)  [ẨN MẶC ĐỊNH]
+------------------------------------------------------------------------
+Cầu nối · Cách 2
+Gán ký hiệu vào công thức Gini
+(Ẩn mặc định trong settings.)
+========================================================================
+
+SLIDE 20  |  Tính Gini  (gini-h)
+------------------------------------------------------------------------
+Áp dụng · Cách 2 · Bước 1
+Tính Gini — theo từng đặc trưng (động theo bảng Dataset)
+p_Yes = n_Có/|S| · p_No = n_Không/|S|
+Gini_before = 1 − ( (p_Yes)^2 + (p_No)^2 )
+Với từng đặc trưng: Gini từng nhánh = 1−( (yes/n)^2 + (no/n)^2 )
+========================================================================
+
+SLIDE 21  |  Cách 2 · ΔGini  (gini-calc)
+------------------------------------------------------------------------
+Áp dụng · Cách 2 · Bước 2
+Gini_after & ΔGini — cả 3 đặc trưng
+Gini_after có trọng số → ΔGini = Gini_before − Gini_after
+Kết luận: chọn đặc trưng ΔGini lớn nhất; so với gốc Entropy.
+Slide sau: tính tiếp trên nhánh chưa thuần.
+========================================================================
+
+SLIDE 22  |  Gini · Nhánh Nắng  (gini-grow)
+------------------------------------------------------------------------
+Áp dụng · Cách 2 · Bước 3
+Nhánh (Nắng) — bảng lọc + Gini_before + ΔGini từng đặc trưng còn lại + kết luận + mini-tree
+(Giống entropy-grow, thước đo Gini.)
+========================================================================
+
+SLIDE 23  |  Gini · Nhánh Mưa  (gini-grow-rain)
+------------------------------------------------------------------------
+Áp dụng · Cách 2 · Bước 4
+Nhánh (Mưa) — tính ΔGini rõ từng bước · Thấp còn lẫn → slide sau
+========================================================================
+
+SLIDE 24  |  Gini · Chia tiếp  (gini-grow-deep)
+------------------------------------------------------------------------
+Áp dụng · Cách 2 · Bước 5
+Mưa → Độ ẩm = Thấp còn lẫn — bảng lọc + Gini_before + ΔGini (Gió) → lá thuần
+========================================================================
+
+SLIDE 25  |  Cây Gini  (gini-result)
+------------------------------------------------------------------------
+Áp dụng · Cách 2 · Kết quả
+Cây quyết định dựng bằng Gini / ΔGini (SVG). So gốc với Entropy.
+========================================================================
+
+SLIDE 26  |  Thuật toán  (algorithms)
+------------------------------------------------------------------------
+Các thuật toán
+ID3 · C4.5 · CART
+Thuật toán
+Thước đo
+Đặc điểm
+ID3
+Information Gain
+Chỉ categorical, dễ hiểu
+C4.5
+Gain Ratio
+Mở rộng ID3 (số liên tục, missing…)
+CART
+Gini / MSE
+Nhị phân · phân loại & hồi quy
+========================================================================
+
+SLIDE 27  |  Ưu nhược  (pros-cons)
+------------------------------------------------------------------------
+Đánh giá
+Ưu điểm & Nhược điểm
+✓ Ưu điểm
+• Dễ đọc: nhìn cây là hiểu vì sao ra kết luận (như hỏi từng bước đi picnic)
+• Dùng được cả đặc trưng chữ (Nắng / Mưa) lẫn số
+• Không cần chỉnh số liệu về cùng một thang đo trước khi học
+• Dự đoán nhanh — chỉ lần theo vài câu hỏi trên cây
+✗ Nhược điểm
+• Cây quá sâu dễ học thuộc lòng (overfitting) bảng train → kém với tình huống mới
+• Đổi / thêm vài dòng dữ liệu có thể làm cây đổi hẳn
+• Mỗi lần chỉ hỏi một đặc trưng → ranh giới quyết định hơi “thô”, dạng bậc thang
+• Đặc trưng có nhiều giá trị dễ được chọn hơn — dù chưa chắc hữu ích hơn (thiên lệch / bias)
+Note: Tóm lại — Decision Tree mạnh về khả năng giải thích (interpretability), nhưng dễ overfitting nếu mô hình quá phức tạp (cây sâu).
+========================================================================
+
+SLIDE 28  |  Overfitting  (overfitting)
+------------------------------------------------------------------------
+Thực hành quan trọng
+Overfitting & Pruning
+Overfitting là gì?
+Overfitting xảy ra khi mô hình khớp quá sát tập train — kể cả nhiễu —
+nên hiệu năng cao trên dữ liệu đã thấy, nhưng khái quát kém trên dữ liệu mới (test).
+• Biểu hiện trên cây: độ sâu lớn, số lá nhiều
+• Tiêu chí nhận biết: accuracy train ≫ accuracy test
+Cách giảm overfitting
+• max_depth — chỉ cho hỏi tối đa N tầng
+• min_samples_leaf — mỗi lá phải có đủ N mẫu
+• Pruning — cắt bớt nhánh không giúp dự đoán mới
+• Ensemble — nhiều cây bỏ phiếu (Random Forest…)
+Callout: Thực tế — thử vài max_depth (vd. 3, 5, 7) và chọn mức hiệu năng tốt trên tập kiểm tra; không có giá trị “đúng tuyệt đối”.
+========================================================================
+
+SLIDE 29  |  Ứng dụng  (apps)
+------------------------------------------------------------------------
+Thực tế
+Ứng dụng thực tế
+Bấm một ô để mở demo: bảng mẫu + cây + thử trả lời từng câu hỏi theo cây.
+🏥 Chẩn đoán y tế
+💳 Phát hiện gian lận
+🏦 Duyệt tín dụng
+🛒 Gợi ý mua hàng
+🏭 Kiểm soát chất lượng
+📧 Lọc spam
+========================================================================
+
+SLIDE 30  |  Live demo  (live-demo)
+------------------------------------------------------------------------
+Thực hành · Live
+Demo: tham dự thuyết trình?
+Mỗi người thêm vài mẫu → xem cây thay đổi như thế nào.
+0 mẫu · realtime
+Reset
+Bảng dữ liệu (live)
+Tên | Rảnh? | Thích? | Hình thức | Tham dự?
+Cây quyết định (live)
+Quét QR để tham gia demo
+========================================================================
+
+SLIDE 31  |  Q&A  (qa)
+------------------------------------------------------------------------
+Kết thúc
+Cảm ơn mọi người đã lắng nghe
+========================================================================

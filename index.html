@@ -7,12 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin />
   <link rel="stylesheet" href="styles.css" />
+  <script src="editable.js"></script>
 </head>
 <body>
   <div class="deck" id="deck">
     <!-- 1. Title -->
-    <section class="slide active" data-title="Mở đầu">
+    <section class="slide active" data-slide-id="open" data-title="Mở đầu">
       <div class="slide-bg"></div>
       <div class="slide-inner title-slide">
         <div class="title-left">
@@ -60,50 +62,53 @@
     </section>
 
     <!-- 2. Agenda -->
-    <section class="slide" data-title="Mục lục">
+    <section class="slide" data-slide-id="agenda" data-title="Mục lục">
       <div class="slide-inner">
         <p class="eyebrow">Nội dung</p>
-        <h2>Chúng ta sẽ học gì?</h2>
+        <h2>Mục lục</h2>
         <ol class="agenda">
           <li><span>01</span> Decision Tree là gì?</li>
           <li><span>02</span> Cấu trúc của một cây</li>
           <li><span>03</span> Ví dụ đời thường</li>
           <li><span>04</span> Phân loại vs Hồi quy</li>
-          <li><span>05</span> Cách cây “học” (Entropy, Gini)</li>
-          <li><span>06</span> Ví dụ từng bước + thuật toán</li>
-          <li><span>07</span> Ưu / nhược điểm & ứng dụng</li>
+          <li><span>05</span> Dataset picnic</li>
+          <li><span>06</span> Cách 1 · Entropy</li>
+          <li><span>07</span> Cách 2 · Gini</li>
+          <li><span>08</span> Thuật toán · ưu nhược · overfitting</li>
+          <li><span>09</span> Ứng dụng thực tế</li>
         </ol>
       </div>
     </section>
 
     <!-- 3. What is DT -->
-    <section class="slide" data-title="Khái niệm">
+    <section class="slide" data-slide-id="concept" data-title="Khái niệm">
       <div class="slide-inner">
         <p class="eyebrow">Khái niệm</p>
         <h2>Decision Tree là gì?</h2>
         <p class="lead">
-          Là mô hình học máy <strong>có giám sát</strong>, dự đoán bằng cách
-          <em>hỏi một chuỗi câu hỏi Có / Không</em> — giống flowchart.
+          Mô hình học máy <strong>có giám sát</strong>: dự đoán bằng cách
+          hỏi lần lượt các câu <strong>Có / Không</strong> trên đặc trưng của dữ liệu.
         </p>
         <div class="cards two">
           <div class="card">
             <h3>Ý tưởng cốt lõi</h3>
-            <p>Chia dữ liệu thành các nhóm ngày càng “thuần” hơn, cho đến khi đủ để đưa ra quyết định.</p>
+            <p>
+              Chia dữ liệu thành nhóm ngày càng <strong>“thuần”</strong> hơn.
+              Mỗi bước, máy chọn câu hỏi làm <strong>giảm độ lẫn nhiều nhất</strong>
+              — rồi lặp lại trên từng nhóm con cho đến khi đủ điều kiện dừng.
+            </p>
           </div>
           <div class="card">
             <h3>Đầu vào → Đầu ra</h3>
-            <p><strong>Input:</strong> đặc trưng (tuổi, thu nhập…)<br />
+            <p><strong>Input:</strong> đặc trưng (tuổi, thu nhập, thời tiết…)<br />
                <strong>Output:</strong> nhãn (Có/Không) hoặc số (giá nhà)</p>
           </div>
         </div>
-        <p class="callout">
-          Ví dụ: “Có nên đi picnic không?” → Hỏi thời tiết → Hỏi độ ẩm → Kết luận.
-        </p>
       </div>
     </section>
 
     <!-- 4. Structure -->
-    <section class="slide" data-title="Cấu trúc">
+    <section class="slide" data-slide-id="structure" data-title="Cấu trúc">
       <div class="slide-inner">
         <p class="eyebrow">Cấu trúc</p>
         <h2>Các thành phần của cây</h2>
@@ -144,7 +149,7 @@
           <ul class="struct-list">
             <li><strong>Root (Nút gốc)</strong> — câu hỏi / đặc trưng quan trọng nhất</li>
             <li><strong>Internal node</strong> — điểm chia tiếp theo một đặc trưng</li>
-            <li><strong>Branch (Nhánh)</strong> — kết quả của câu hỏi (Có / Không / giá trị)</li>
+            <li><strong>Branch (Nhánh)</strong> — cạnh nối nút cha → nút con, ứng với một giá trị của điều kiện chia</li>
             <li><strong>Leaf (Nút lá)</strong> — kết quả dự đoán cuối cùng</li>
           </ul>
         </div>
@@ -152,46 +157,70 @@
     </section>
 
     <!-- 5. Everyday example -->
-    <section class="slide" data-title="Ví dụ đời thường">
+    <section class="slide" data-slide-id="everyday" data-title="Ví dụ đời thường">
       <div class="slide-inner">
         <p class="eyebrow">Ví dụ dễ hiểu</p>
         <h2>Có nên đi chơi bóng không?</h2>
         <div class="flow-example">
-          <svg class="tree-svg flow-tree-svg" viewBox="0 0 560 280" role="img" aria-label="Cây quyết định đi chơi bóng">
+          <svg class="tree-svg flow-tree-svg" viewBox="0 0 580 320" role="img" aria-label="Cây quyết định đi chơi bóng — gắn Root, Internal, Branch, Leaf">
             <g class="tree-lines">
-              <path d="M280 48 V75 H120 V100" />
-              <path d="M280 75 H400 V100" />
-              <path d="M400 132 V155 H320 V178" />
-              <path d="M400 155 H480 V178" />
+              <path d="M290 56 V82 H120 V112" />
+              <path d="M290 82 H410 V108" />
+              <path d="M410 156 V178 H320 V206" />
+              <path d="M410 178 H500 V206" />
             </g>
-            <text class="edge-label no-c" x="175" y="90">Có mưa</text>
-            <text class="edge-label yes-c" x="330" y="90">Không mưa</text>
-            <text class="edge-label yes-c" x="345" y="170">Có</text>
-            <text class="edge-label no-c" x="430" y="170">Không</text>
-            <rect class="node-root" x="210" y="12" width="140" height="36" rx="10" />
-            <text class="node-text on-dark" x="280" y="35">Trời mưa?</text>
-            <rect class="node-no" x="60" y="105" width="120" height="36" rx="8" />
-            <text class="node-text on-dark" x="120" y="128">Ở nhà</text>
-            <rect class="node-mid" x="335" y="100" width="130" height="36" rx="8" />
-            <text class="node-text" x="400" y="123">Cuối tuần?</text>
-            <rect class="node-yes" x="260" y="185" width="120" height="36" rx="8" />
-            <text class="node-text on-dark" x="320" y="208">Đi chơi!</text>
-            <rect class="node-no" x="420" y="185" width="120" height="36" rx="8" />
-            <text class="node-text on-dark" x="480" y="208">Học bài</text>
+
+            <!-- Branch: giá trị + note cùng màu trong ngoặc -->
+            <text class="edge-label no-c on-branch" x="185" y="90">Có mưa</text>
+            <text class="role-note" x="185" y="104">(Nhánh)</text>
+            <text class="edge-label yes-c on-branch" x="345" y="90">Không mưa</text>
+            <text class="role-note" x="345" y="104">(Nhánh)</text>
+            <text class="edge-label yes-c on-branch" x="350" y="178">Có</text>
+            <text class="role-note" x="350" y="192">(Nhánh)</text>
+            <text class="edge-label no-c on-branch" x="450" y="178">Không</text>
+            <text class="role-note" x="450" y="192">(Nhánh)</text>
+
+            <!-- Root — nội dung + (Root) chung một box -->
+            <rect class="node-root" x="215" y="8" width="150" height="48" rx="10" />
+            <text class="node-text on-dark" x="290" y="28">Trời mưa?</text>
+            <text class="role-note on-dark" x="290" y="46">(Root)</text>
+
+            <!-- Leaf: Ở nhà — nội dung + (Leaf) chung một box -->
+            <rect class="node-no" x="55" y="112" width="130" height="48" rx="8" />
+            <text class="node-text on-dark" x="120" y="132">Ở nhà</text>
+            <text class="role-note on-dark" x="120" y="150">(Leaf)</text>
+
+            <!-- Internal — nội dung + (Internal) chung một box -->
+            <rect class="node-mid" x="340" y="108" width="140" height="48" rx="8" />
+            <text class="node-text" x="410" y="128">Cuối tuần?</text>
+            <text class="role-note" x="410" y="146">(Internal)</text>
+
+            <!-- Leaf: Đi chơi -->
+            <rect class="node-yes" x="255" y="206" width="130" height="48" rx="8" />
+            <text class="node-text on-dark" x="320" y="226">Đi chơi!</text>
+            <text class="role-note on-dark" x="320" y="244">(Leaf)</text>
+
+            <!-- Leaf: Học bài -->
+            <rect class="node-no" x="435" y="206" width="130" height="48" rx="8" />
+            <text class="node-text on-dark" x="500" y="226">Học bài</text>
+            <text class="role-note on-dark" x="500" y="244">(Leaf)</text>
           </svg>
         </div>
-        <p class="note">Đây chính là Decision Tree — chỉ khác là máy tự chọn câu hỏi nào hỏi trước.</p>
+        <p class="note">
+          Decision Tree được dựng theo kiểu suy nghĩ của người:
+          lần lượt hỏi <strong>Có / Không</strong> rồi mới kết luận.
+        </p>
       </div>
     </section>
 
     <!-- 6. Classification vs Regression -->
-    <section class="slide" data-title="Hai loại">
+    <section class="slide" data-slide-id="two-types" data-title="Hai loại">
       <div class="slide-inner">
         <p class="eyebrow">Hai loại cây</p>
         <h2>Cây phân loại &amp; Cây hồi quy</h2>
         <p class="lead types-lead">
-          Decision Tree giống một người hỏi từng câu để quyết định.
-          Khác nhau chỉ ở <strong>câu trả lời cuối cùng</strong> là gì.
+          Cả hai loại cây đều hỏi lần lượt rồi mới kết luận.
+          <strong>Khác nhau ở kết quả cuối:</strong> nhãn (nhóm) hay một con số.
         </p>
         <div class="cards two big">
           <div class="card accent-a">
@@ -199,11 +228,10 @@
             <h3>Cây phân loại</h3>
             <p>Trả lời kiểu <strong>“thuộc nhóm nào?”</strong></p>
             <ul>
-              <li>Thư này spam hay không?</li>
-              <li>Có bệnh hay không?</li>
+              <li>Spam hay không spam?</li>
               <li>Khách có mua hay không?</li>
             </ul>
-            <p class="mini">→ Kết quả là chữ / nhãn (Có, Không, Spam…)</p>
+            <p class="mini">→ Kết quả là nhóm / nhãn (Yes / No, Spam…)</p>
           </div>
           <div class="card accent-b">
             <p class="card-label">Regression</p>
@@ -212,7 +240,6 @@
             <ul>
               <li>Nhà này giá bao nhiêu?</li>
               <li>Ngày mai bao nhiêu độ?</li>
-              <li>Tháng này bán được bao nhiêu tiền?</li>
             </ul>
             <p class="mini">→ Kết quả là một con số</p>
           </div>
@@ -225,13 +252,14 @@
     </section>
 
     <!-- 7. How it learns -->
-    <section class="slide" data-title="Cách học">
+    <section class="slide" data-slide-id="learning" data-title="Quy trình">
       <div class="slide-inner">
-        <p class="eyebrow">Thuật toán học</p>
-        <h2>Cây hỏi câu nào trước?</h2>
+        <p class="eyebrow">Thuật toán học · Minh họa</p>
+        <h2>Quy trình hoạt động của Decision Tree</h2>
         <p class="lead">
-          Ý chính: máy luôn làm <strong>cùng 3 bước</strong>.
-          Xong thì nhìn từng nhóm con — sạch thì dừng, còn lẫn thì <strong>làm lại 3 bước đó</strong>.
+          Ý chính: máy <strong>lần lượt</strong> làm 3 bước (thử → chọn → chia), rồi xét <strong>từng nhóm con</strong>.
+          Nếu <strong>đủ điều kiện dừng</strong> → tạo nút lá; nếu chưa → <strong>lặp lại 3 bước</strong> trên chính nhóm con đó
+          (không quay lại toàn bộ dataset).
         </p>
         <div class="recur-map" aria-hidden="true">
           <svg class="recur-svg" viewBox="0 0 900 340" role="img">
@@ -254,7 +282,7 @@
             <text class="rm-badge-num" x="480" y="22">2</text>
             <rect class="rm-box pick" x="400" y="32" width="160" height="60" rx="12" />
             <text class="rm-title" x="480" y="56">Chọn câu tốt nhất</text>
-            <text class="rm-sub" x="480" y="74">chia “sạch” nhất</text>
+            <text class="rm-sub" x="480" y="74">giảm lẫn nhiều nhất</text>
 
             <path class="rm-line" d="M560 62 H600" marker-end="url(#rm-arrow)" />
 
@@ -265,29 +293,30 @@
             <text class="rm-sub" x="675" y="74">ra các nhóm con</text>
 
             <!-- down to decision -->
-            <path class="rm-line" d="M675 96 V130" marker-end="url(#rm-arrow)" />
-            <text class="rm-hint" x="675" y="122">với TỪNG nhóm con</text>
+            <path class="rm-line" d="M675 96 V128" marker-end="url(#rm-arrow)" />
+            <text class="rm-hint" x="675" y="120">với TỪNG nhóm con</text>
 
-            <rect class="rm-box ask" x="575" y="135" width="200" height="48" rx="12" />
-            <text class="rm-title" x="675" y="165">Nhóm này đã sạch chưa?</text>
+            <rect class="rm-box ask" x="555" y="132" width="240" height="52" rx="12" />
+            <text class="rm-title" x="675" y="152">Đủ điều kiện dừng?</text>
+            <text class="rm-sub" x="675" y="170">sạch · max depth · …</text>
 
             <!-- yes / no -->
-            <path class="rm-line" d="M675 183 V205 H420 V225" marker-end="url(#rm-arrow)" />
+            <path class="rm-line" d="M675 184 V205 H420 V225" marker-end="url(#rm-arrow)" />
             <path class="rm-line" d="M675 205 H820 V225" marker-end="url(#rm-arrow)" />
             <text class="rm-yes" x="520" y="200">Có →</text>
             <text class="rm-no" x="760" y="200">Chưa →</text>
 
-            <rect class="rm-box leaf" x="350" y="228" width="140" height="58" rx="12" />
-            <text class="rm-title" x="420" y="252">Thành nút LÁ</text>
-            <text class="rm-sub" x="420" y="270">đưa ra kết quả · DỪNG</text>
+            <rect class="rm-box leaf" x="340" y="228" width="160" height="58" rx="12" />
+            <text class="rm-title" x="420" y="252">Nút lá</text>
+            <text class="rm-sub" x="420" y="270">dự đoán kết quả · DỪNG</text>
 
-            <rect class="rm-box again" x="750" y="228" width="140" height="58" rx="12" />
-            <text class="rm-title" x="820" y="252">Làm lại từ đầu</text>
-            <text class="rm-sub" x="820" y="270">nhóm con = dữ liệu mới</text>
+            <rect class="rm-box again" x="730" y="228" width="170" height="58" rx="12" />
+            <text class="rm-title" x="815" y="252">Chia tiếp nhóm con</text>
+            <text class="rm-sub" x="815" y="270">lặp lại 3 bước trên nhóm này</text>
 
             <!-- loop back -->
             <path class="rm-recur" d="M820 286 V318 H100 V88" marker-end="url(#rm-arrow)" />
-            <text class="rm-recur-label" x="420" y="310">quay lại bước 1 với nhóm con này</text>
+            <text class="rm-recur-label" x="420" y="310">quay lại bước 1 · chỉ trên nhóm con này</text>
 
             <defs>
               <marker id="rm-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
@@ -297,175 +326,122 @@
           </svg>
         </div>
         <p class="callout">
-          “Sạch” = gần như cùng một kết quả. Máy đo bằng <strong>Entropy</strong> hoặc <strong>Gini</strong> (slide sau).
+          <strong>“Giảm lẫn”</strong> = sau khi chia, nhóm con thuần hơn (gần cùng một kết quả Yes/No).
+          Máy so sánh các cách chia (Thời tiết, Độ ẩm, Gió…) rồi chọn cách
+          <em>giảm độ lẫn nhiều nhất</em> — đo bằng <strong>Entropy</strong> hoặc <strong>Gini</strong>
+          (công thức ở slide sau).
         </p>
       </div>
     </section>
 
-    <!-- 8. Entropy -->
-    <section class="slide" data-title="Entropy">
+    <!-- 8. Entropy formulas -->
+    <section class="slide" data-slide-id="entropy" data-title="Entropy">
       <div class="slide-inner">
-        <p class="eyebrow">Thước đo 1</p>
+        <p class="eyebrow">Công thức · Cách 1</p>
         <h2>Entropy &amp; Information Gain</h2>
+        <p class="lead">Đo độ lẫn của nhóm; Information Gain đo <strong>mức giảm</strong> độ lẫn sau khi chia. (Chưa gắn số liệu.)</p>
         <div class="formula-row">
           <div class="formula-block">
-            <p>① Entropy — mức độ lẫn / hỗn loạn của tập <strong>S</strong>:</p>
-            <div class="formula">H(S) = − Σ<sub>i</sub> p<sub>i</sub> · log<sub>2</sub>(p<sub>i</sub>)</div>
+            <p>① Entropy — độ lẫn của tập <strong>S</strong></p>
+            <p class="formula-tag">Tổng quát</p>
+            <div class="formula" data-tex="H(S) = -\left(\sum_{i} p_i \cdot \log_2(p_i)\right)"></div>
+            <p class="formula-tag">Phân tích (2 lớp Yes / No)</p>
+            <div class="formula formula-easy formula-sm" data-tex="H(S) = -\left(p_{\mathrm{Yes}}\log_2(p_{\mathrm{Yes}}) + p_{\mathrm{No}}\log_2(p_{\mathrm{No}})\right)"></div>
             <ul class="symbol-legend">
               <li><strong>H(S)</strong> — Entropy của tập S (càng lớn càng lẫn)</li>
-              <li><strong>S</strong> — tập dữ liệu đang xét (vd: 8 mẫu picnic)</li>
+              <li><strong>S</strong> — tập dữ liệu / nhóm đang xét</li>
               <li><strong>Σ<sub>i</sub></strong> — cộng lần lượt theo từng lớp i</li>
-              <li><strong>i</strong> — chỉ số lớp (vd: i = Có, Không)</li>
-              <li><strong>p<sub>i</sub></strong> — tỷ lệ mẫu thuộc lớp i · p<sub>i</sub> = |lớp i| / |S|</li>
-              <li><strong>log<sub>2</sub></strong> — logarit cơ số 2 (đơn vị: bit)</li>
-              <li class="legend-note"><strong>H = 0</strong> thuần 1 lớp · <strong>H = 1</strong> hai lớp 50/50</li>
+              <li><strong>i</strong> — từng lớp / nhãn (vd. Yes, No)</li>
+              <li><strong>p<sub>i</sub></strong> — tỷ lệ mẫu lớp i = (số mẫu lớp i) / |S|</li>
+              <li><strong>log<sub>2</sub></strong> — logarit cơ số 2 (đơn vị bit)</li>
+              <li><strong>−(…)</strong> — trừ cả tổng trong ngoặc (log(p) &lt; 0 khi 0 &lt; p &lt; 1)</li>
+              <li class="legend-note"><strong>H = 0</strong> không lẫn · <strong>H = 1</strong> khi 2 lớp 50/50</li>
             </ul>
           </div>
           <div class="formula-block">
-            <p>② Information Gain — Entropy giảm được khi chia theo đặc trưng <strong>A</strong>:</p>
-            <div class="formula formula-sm">
-              Gain(S,A) = H(S) − Σ<sub>v</sub> (|S<sub>v</sub>| / |S|) · H(S<sub>v</sub>)
-            </div>
+            <p>② Information Gain — mức giảm độ lẫn khi chia theo <strong>A</strong></p>
+            <p class="formula-tag">Tổng quát</p>
+            <div class="formula formula-sm" data-tex="\mathrm{Gain}(S,A) = H(S) - \sum_{v}\frac{|S_v|}{|S|}\cdot H(S_v)"></div>
+            <p class="formula-tag">Phân tích (dễ tính)</p>
+            <div class="formula formula-easy formula-sm" data-tex="\mathrm{Gain} = H_{\mathrm{before}} - H_{\mathrm{after}}"></div>
+            <div class="formula formula-easy formula-sm" data-tex="H_{\mathrm{after}} = \dfrac{n_1}{N}H_1 + \cdots + \dfrac{n_k}{N}H_k"></div>
             <ul class="symbol-legend">
-              <li><strong>A</strong> — đặc trưng đang xét (vd: Thời tiết)</li>
-              <li><strong>v</strong> — một giá trị của A (vd: Nắng, Mây, Mưa)</li>
-              <li><strong>S<sub>v</sub></strong> — nhóm con: các mẫu trong S có A = v</li>
-              <li><strong>|S|</strong> — số mẫu tập gốc · <strong>|S<sub>v</sub>|</strong> — số mẫu nhóm con</li>
-              <li><strong>|S<sub>v</sub>| / |S|</strong> — trọng số: nhóm to ảnh hưởng nhiều hơn</li>
-              <li><strong>Σ<sub>v</sub> …</strong> — Entropy trung bình có trọng số sau khi chia</li>
-              <li class="legend-note"><strong>Gain càng lớn</strong> → hỏi A trước (chia “sạch” hơn)</li>
+              <li><strong>A</strong> — đặc trưng dùng để chia</li>
+              <li><strong>v</strong> — một giá trị của A · <strong>k</strong> — số nhánh</li>
+              <li><strong>S<sub>v</sub></strong> — nhóm con khi A = v</li>
+              <li><strong>|S|</strong> (= <strong>N</strong>) — số mẫu tập gốc</li>
+              <li><strong>|S<sub>v</sub>|</strong> (= <strong>n<sub>j</sub></strong>) — số mẫu nhánh j</li>
+              <li><strong>|S<sub>v</sub>| / |S|</strong> — trọng số nhánh (nhóm to nặng hơn)</li>
+              <li><strong>H<sub>before</sub></strong> = H(S) — trước khi chia</li>
+              <li><strong>H<sub>after</sub></strong> — Entropy trung bình có trọng số sau chia</li>
+              <li class="legend-note"><strong>Gain càng lớn</strong> → cách chia càng tốt</li>
             </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 8b. Entropy picnic calc -->
-    <section class="slide" data-title="Tính Entropy">
+    <!-- 9. Map Entropy symbols (tiny example, no calc) -->
+    <section class="slide" data-slide-id="entropy-map" data-title="Đọc công thức">
       <div class="slide-inner">
-        <p class="eyebrow">Ví dụ tính · Picnic</p>
-        <h2>Tính Entropy &amp; Information Gain</h2>
-        <p class="lead calc-lead">
-          Dataset picnic: <strong>8 mẫu</strong> · <strong>4 Có</strong> · <strong>4 Không</strong>
-          → p<sub>Có</sub> = 4/8 = 0.5 · p<sub>Không</sub> = 0.5
+        <p class="eyebrow">Cầu nối · Cách 1</p>
+        <h2>Đọc công thức bằng một ví dụ nhỏ</h2>
+        <p class="lead">
+          Mục tiêu: biết mỗi ký hiệu <strong>lấy số từ đâu</strong>.
         </p>
-        <div class="calc-grid">
-          <div class="calc-card">
-            <h3>① Entropy gốc H(S)</h3>
-            <div class="calc-steps">
-              <p>H(S) = − 0.5 · log<sub>2</sub>(0.5) − 0.5 · log<sub>2</sub>(0.5)</p>
-              <p>= − 0.5 · (−1) − 0.5 · (−1)</p>
-              <p class="calc-result">H(S) = <strong>1</strong></p>
-            </div>
-          </div>
-          <div class="calc-card">
-            <h3>② Chia theo Thời tiết</h3>
-            <div class="calc-steps">
-              <p>Nắng (3): 1 Có, 2 Không → H ≈ <strong>0.918</strong></p>
-              <p>Mây (2): 2 Có, 0 Không → H = <strong>0</strong></p>
-              <p>Mưa (3): 1 Có, 2 Không → H ≈ <strong>0.918</strong></p>
-            </div>
-          </div>
-        </div>
-        <div class="calc-card calc-wide">
-          <h3>③ Information Gain (Thời tiết)</h3>
-          <div class="calc-steps">
-            <p>H<sub>sau</sub> = Σ<sub>v</sub> (|S<sub>v</sub>| / |S|) · H(S<sub>v</sub>)
-              = (3/8)·0.918 + (2/8)·0 + (3/8)·0.918 ≈ <strong>0.689</strong></p>
-            <p>Gain(S, Thời tiết) = H(S) − H<sub>sau</sub> = 1 − 0.689</p>
-            <p class="calc-result">Gain(Thời tiết) ≈ <strong>0.311</strong></p>
-            <p class="calc-compare">So sánh nhanh: Gain(Độ ẩm) ≈ 0.189 · Gain(Gió) ≈ 0.049
-              → <strong>Thời tiết</strong> lớn nhất → hỏi trước!</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 9. Gini -->
-    <section class="slide" data-title="Gini">
-      <div class="slide-inner">
-        <p class="eyebrow">Thước đo 2</p>
-        <h2>Gini Impurity</h2>
-        <div class="formula-row">
-          <div class="formula-block">
-            <p>① Gini — độ “bẩn” / lẫn của tập <strong>S</strong>:</p>
-            <div class="formula">Gini(S) = 1 − Σ<sub>i</sub> (p<sub>i</sub>)<sup>2</sup></div>
-            <ul class="symbol-legend">
-              <li><strong>Gini(S)</strong> — độ bẩn của tập S (càng lớn càng lẫn)</li>
-              <li><strong>S</strong> — tập dữ liệu đang xét</li>
-              <li><strong>Σ<sub>i</sub></strong> — cộng lần lượt theo từng lớp i</li>
-              <li><strong>i</strong> — chỉ số lớp (vd: i = Có, Không)</li>
-              <li><strong>p<sub>i</sub></strong> — tỷ lệ mẫu lớp i · p<sub>i</sub> = |lớp i| / |S|</li>
-              <li><strong>(p<sub>i</sub>)<sup>2</sup></strong> — bình phương tỷ lệ lớp i</li>
-              <li class="legend-note"><strong>Gini = 0</strong> thuần 1 lớp · <strong>Gini = 0.5</strong> hai lớp 50/50</li>
+        <div class="map-grid">
+          <div class="map-card">
+            <h3>Entropy — gán ký hiệu</h3>
+            <table class="mini-map-table">
+              <thead><tr><th>Kết quả</th><th>Số mẫu</th></tr></thead>
+              <tbody>
+                <tr><td>Có (Yes)</td><td>3</td></tr>
+                <tr><td>Không (No)</td><td>1</td></tr>
+                <tr class="total"><td>Tổng</td><td>4</td></tr>
+              </tbody>
+            </table>
+            <div class="formula formula-easy formula-sm" data-tex="H(S) = -\left(\sum_{i} p_i \cdot \log_2(p_i)\right)"></div>
+            <ul class="map-bind">
+              <li><strong>S</strong> = 4 mẫu</li>
+              <li><strong>i</strong> = Có / Không</li>
+              <li><strong>p<sub>Có</sub></strong> = 3/4</li>
+              <li><strong>p<sub>Không</sub></strong> = 1/4</li>
             </ul>
           </div>
-          <div class="formula-block">
-            <p>② ΔGini — Gini giảm được khi chia theo đặc trưng <strong>A</strong>:</p>
-            <div class="formula formula-sm">
-              ΔGini(S,A) = Gini(S) − Σ<sub>v</sub> (|S<sub>v</sub>| / |S|) · Gini(S<sub>v</sub>)
-            </div>
-            <ul class="symbol-legend">
-              <li><strong>A</strong> — đặc trưng đang xét (vd: Thời tiết)</li>
-              <li><strong>v</strong> — một giá trị của A (vd: Nắng, Mây, Mưa)</li>
-              <li><strong>S<sub>v</sub></strong> — nhóm con: các mẫu trong S có A = v</li>
-              <li><strong>|S|</strong> — số mẫu tập gốc · <strong>|S<sub>v</sub>|</strong> — số mẫu nhóm con</li>
-              <li><strong>|S<sub>v</sub>| / |S|</strong> — trọng số: nhóm to ảnh hưởng nhiều hơn</li>
-              <li><strong>Σ<sub>v</sub> …</strong> — Gini trung bình có trọng số sau khi chia</li>
-              <li class="legend-note"><strong>ΔGini càng lớn</strong> → hỏi A trước · dùng trong CART / sklearn</li>
+          <div class="map-card">
+            <h3>H<sub>after</sub> — gán ký hiệu</h3>
+            <table class="mini-map-table">
+              <thead><tr><th>Nhánh</th><th>Số mẫu</th><th>Entropy</th></tr></thead>
+              <tbody>
+                <tr><td>A = Có</td><td>3</td><td>H<sub>1</sub></td></tr>
+                <tr><td>A = Không</td><td>1</td><td>H<sub>2</sub></td></tr>
+                <tr class="total"><td>Tổng</td><td>4</td><td></td></tr>
+              </tbody>
+            </table>
+            <div class="formula formula-easy formula-sm" data-tex="H_{\mathrm{after}} = \dfrac{3}{4}H_1 + \dfrac{1}{4}H_2"></div>
+            <ul class="map-bind">
+              <li><strong>N</strong> = 4 — tổng mẫu</li>
+              <li><strong>n<sub>1</sub></strong> = 3 · <strong>n<sub>2</sub></strong> = 1</li>
+              <li><strong>H<sub>1</sub>, H<sub>2</sub></strong> — Entropy từng nhánh (chưa tính)</li>
+              <li><strong>3/4, 1/4</strong> — trọng số n<sub>j</sub>/N</li>
             </ul>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 9b. Gini picnic calc -->
-    <section class="slide" data-title="Tính Gini">
+    <!-- 10. Dataset picnic -->
+    <section class="slide" data-slide-id="step-by-step" data-title="Dataset">
       <div class="slide-inner">
-        <p class="eyebrow">Ví dụ tính · Picnic</p>
-        <h2>Tính Gini trên cùng dataset</h2>
-        <p class="lead calc-lead">
-          Vẫn 8 mẫu picnic: <strong>4 Có</strong> · <strong>4 Không</strong> · p = 0.5 / 0.5
-        </p>
-        <div class="calc-grid">
-          <div class="calc-card">
-            <h3>① Gini gốc</h3>
-            <div class="calc-steps">
-              <p>Gini(S) = 1 − (0.5)<sup>2</sup> − (0.5)<sup>2</sup></p>
-              <p>= 1 − 0.25 − 0.25</p>
-              <p class="calc-result">Gini(S) = <strong>0.5</strong></p>
-            </div>
-          </div>
-          <div class="calc-card">
-            <h3>② Gini từng nhánh (Thời tiết)</h3>
-            <div class="calc-steps">
-              <p>Nắng 1/3–2/3: 1 − (1/3)<sup>2</sup> − (2/3)<sup>2</sup> = <strong>0.444</strong></p>
-              <p>Mây thuần Có: Gini = <strong>0</strong></p>
-              <p>Mưa 1/3–2/3: Gini = <strong>0.444</strong></p>
-            </div>
-          </div>
-        </div>
-        <div class="calc-card calc-wide">
-          <h3>③ Gini sau khi chia · ΔGini</h3>
-          <div class="calc-steps">
-            <p>Gini<sub>sau</sub> = Σ<sub>v</sub> (|S<sub>v</sub>| / |S|) · Gini(S<sub>v</sub>)
-              = (3/8)·0.444 + (2/8)·0 + (3/8)·0.444 ≈ <strong>0.333</strong></p>
-            <p>ΔGini(S, Thời tiết) = Gini(S) − Gini<sub>sau</sub> = 0.5 − 0.333</p>
-            <p class="calc-result">ΔGini(Thời tiết) ≈ <strong>0.167</strong></p>
-            <p class="calc-compare">Giống Entropy: chia theo <strong>Thời tiết</strong> vẫn “sạch” hơn Độ ẩm / Gió
-              → cùng kết luận chọn đặc trưng gốc.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 10. Step-by-step example -->
-    <section class="slide" data-title="Ví dụ từng bước">
-      <div class="slide-inner">
-        <p class="eyebrow">Ví dụ đầy đủ</p>
+        <p class="eyebrow">Bảng ví dụ thật</p>
         <h2>Dataset: Có đi picnic không?</h2>
-        <div class="table-wrap">
-          <table>
+        <div class="table-wrap picnic-table-wrap">
+          <div class="picnic-toolbar" data-picnic-toolbar hidden>
+            <button type="button" class="picnic-btn" data-picnic-add>+ Thêm dòng</button>
+            <button type="button" class="picnic-btn picnic-btn-ghost" data-picnic-reset>Reset 8 dòng mẫu</button>
+            <button type="button" class="picnic-btn picnic-btn-ghost" data-picnic-done>Xong</button>
+          </div>
+          <table class="picnic-table" data-picnic="table">
             <thead>
               <tr>
                 <th>#</th>
@@ -475,78 +451,249 @@
                 <th>Đi picnic?</th>
               </tr>
             </thead>
-            <tbody>
-              <tr><td>1</td><td>Nắng</td><td>Cao</td><td>Yếu</td><td class="no">Không</td></tr>
-              <tr><td>2</td><td>Nắng</td><td>Cao</td><td>Mạnh</td><td class="no">Không</td></tr>
-              <tr><td>3</td><td>Mưa</td><td>Cao</td><td>Yếu</td><td class="no">Không</td></tr>
-              <tr><td>4</td><td>Mây</td><td>Cao</td><td>Yếu</td><td class="yes">Có</td></tr>
-              <tr><td>5</td><td>Mây</td><td>Thấp</td><td>Mạnh</td><td class="yes">Có</td></tr>
-              <tr><td>6</td><td>Nắng</td><td>Thấp</td><td>Yếu</td><td class="yes">Có</td></tr>
-              <tr><td>7</td><td>Mưa</td><td>Thấp</td><td>Mạnh</td><td class="no">Không</td></tr>
-              <tr><td>8</td><td>Mưa</td><td>Thấp</td><td>Yếu</td><td class="yes">Có</td></tr>
-            </tbody>
+            <tbody></tbody>
           </table>
         </div>
-        <p class="note">8 mẫu · 3 đặc trưng · 2 lớp (Có / Không). Tiếp theo: xây cây từ dữ liệu này.</p>
+        <div class="formula-bind" data-picnic="dataset-bind"></div>
       </div>
     </section>
 
-    <!-- 11. Built tree from example -->
-    <section class="slide" data-title="Cây kết quả">
+    <!-- 11a. Entropy H values -->
+    <section class="slide" data-slide-id="entropy-h" data-title="Tính Entropy">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 1 · Bước 1</p>
+        <h2>Tính Entropy (H) — theo từng đặc trưng</h2>
+        <p class="lead calc-lead">
+          <strong>H</strong> = Entropy = độ lẫn của một nhóm.
+          Trước hết tính H của cả bảng (H<sub>before</sub>).
+          Sau đó với từng đặc trưng, tính H của mỗi nhánh.
+        </p>
+        <div data-picnic="entropy-h"></div>
+      </div>
+    </section>
+
+    <!-- 11b. Gain -->
+    <section class="slide" data-slide-id="entropy-calc" data-title="Cách 1 · Gain">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 1 · Bước 2</p>
+        <h2>H<sub>after</sub> &amp; Gain — cả 3 đặc trưng</h2>
+        <p class="lead calc-lead">
+          Gain = H<sub>before</sub> − H<sub>after</sub>. Trước hết nhắc lại H<sub>before</sub>:
+        </p>
+        <div data-picnic="entropy-calc"></div>
+      </div>
+    </section>
+
+    <!-- 11c. Filter tables -->
+    <section class="slide" data-slide-id="entropy-filter" data-title="Bảng lọc">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 1 · Bước 3</p>
+        <h2>Chọn gốc → tách bảng</h2>
+        <p class="lead calc-lead">
+          Không tính trên cả bảng nữa — mỗi nhánh chỉ giữ các dòng thuộc nhánh đó.
+        </p>
+        <div data-picnic="entropy-filter"></div>
+      </div>
+    </section>
+
+    <!-- 11d. Grow branch 0 -->
+    <section class="slide" data-slide-id="entropy-grow" data-title="Nhánh 1">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 1 · Bước 4</p>
+        <h2>Nhánh — tính Gain rõ từng bước</h2>
+        <div data-picnic="grow-0"></div>
+      </div>
+    </section>
+
+    <!-- 11e. Grow branch 1 -->
+    <section class="slide" data-slide-id="entropy-grow-rain" data-title="Nhánh 2">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 1 · Bước 5</p>
+        <h2>Nhánh — tính Gain rõ từng bước</h2>
+        <div data-picnic="grow-1"></div>
+      </div>
+    </section>
+
+    <!-- 11e2. Continue impure grandchild -->
+    <section class="slide" data-slide-id="entropy-grow-deep" data-title="Chia tiếp">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 1 · Bước 6</p>
+        <h2>Nhóm còn lẫn — tính Gain tiếp</h2>
+        <div data-picnic="grow-deep"></div>
+      </div>
+    </section>
+
+    <!-- 11f. Result tree -->
+    <section class="slide" data-slide-id="result-tree" data-title="Cây kết quả">
       <div class="slide-inner">
         <p class="eyebrow">Kết quả xây cây</p>
         <h2>Cây quyết định từ dataset picnic</h2>
-        <div class="built-tree">
-          <svg class="tree-svg picnic-tree-svg" viewBox="0 0 800 290" role="img" aria-label="Cây quyết định picnic">
-            <g class="tree-lines">
-              <!-- root xuống rồi sang 3 nhánh -->
-              <path d="M400 48 V75 H110 V100" />
-              <path d="M400 75 H300 V100" />
-              <path d="M400 75 H620 V100" />
-              <!-- Độ ẩm → lá -->
-              <path d="M300 136 V160 H200 V182" />
-              <path d="M300 160 H400 V182" />
-              <!-- Gió → lá -->
-              <path d="M620 136 V160 H520 V182" />
-              <path d="M620 160 H720 V182" />
-            </g>
-            <text class="edge-label" x="150" y="92">Mây</text>
-            <text class="edge-label" x="350" y="92">Nắng</text>
-            <text class="edge-label" x="580" y="92">Mưa</text>
-            <text class="edge-label no-c" x="235" y="172">Cao</text>
-            <text class="edge-label yes-c" x="345" y="172">Thấp</text>
-            <text class="edge-label no-c" x="555" y="172">Mạnh</text>
-            <text class="edge-label yes-c" x="665" y="172">Yếu</text>
+        <div data-picnic="result-tree"></div>
+      </div>
+    </section>
 
-            <rect class="node-root" x="330" y="12" width="140" height="36" rx="10" />
-            <text class="node-text on-dark" x="400" y="35">Thời tiết?</text>
-
-            <rect class="node-yes" x="50" y="102" width="120" height="36" rx="8" />
-            <text class="node-text on-dark" x="110" y="125">Có ✓</text>
-
-            <rect class="node-mid" x="240" y="102" width="120" height="36" rx="8" />
-            <text class="node-text" x="300" y="125">Độ ẩm?</text>
-
-            <rect class="node-mid" x="560" y="102" width="120" height="36" rx="8" />
-            <text class="node-text" x="620" y="125">Gió?</text>
-
-            <rect class="node-no" x="145" y="188" width="110" height="34" rx="8" />
-            <text class="node-text on-dark" x="200" y="210">Không</text>
-            <rect class="node-yes" x="345" y="188" width="110" height="34" rx="8" />
-            <text class="node-text on-dark" x="400" y="210">Có ✓</text>
-
-            <rect class="node-no" x="465" y="188" width="110" height="34" rx="8" />
-            <text class="node-text on-dark" x="520" y="210">Không</text>
-            <rect class="node-yes" x="665" y="188" width="110" height="34" rx="8" />
-            <text class="node-text on-dark" x="720" y="210">Có ✓</text>
-          </svg>
+    <!-- 12. Gini formulas -->
+    <section class="slide" data-slide-id="gini" data-title="Gini">
+      <div class="slide-inner">
+        <p class="eyebrow">Công thức · Cách 2</p>
+        <h2>Gini Impurity &amp; ΔGini</h2>
+        <p class="lead">Đo độ lẫn của nhóm; ΔGini đo <strong>mức giảm</strong> độ lẫn sau khi chia. (Chưa gắn số liệu.)</p>
+        <div class="formula-row">
+          <div class="formula-block">
+            <p>① Gini — độ lẫn của tập <strong>S</strong></p>
+            <p class="formula-tag">Tổng quát</p>
+            <div class="formula" data-tex="\mathrm{Gini}(S) = 1 - \left(\sum_{i}(p_i)^2\right)"></div>
+            <p class="formula-tag">Phân tích (2 lớp Yes / No)</p>
+            <div class="formula formula-easy formula-sm" data-tex="\mathrm{Gini}(S) = 1 - \left((p_{\mathrm{Yes}})^2 + (p_{\mathrm{No}})^2\right)"></div>
+            <ul class="symbol-legend">
+              <li><strong>Gini(S)</strong> — độ lẫn (0 = thuần, càng lớn càng lẫn)</li>
+              <li><strong>S</strong> — tập dữ liệu / nhóm đang xét</li>
+              <li><strong>Σ<sub>i</sub></strong> — cộng lần lượt theo từng lớp i</li>
+              <li><strong>i</strong> — từng lớp / nhãn (vd. Yes, No)</li>
+              <li><strong>p<sub>i</sub></strong> — tỷ lệ mẫu lớp i = (số mẫu lớp i) / |S|</li>
+              <li><strong>(p<sub>i</sub>)<sup>2</sup></strong> — bình phương tỷ lệ (không có log)</li>
+              <li><strong>1 − (…)</strong> — trừ cả tổng bình phương trong ngoặc</li>
+              <li class="legend-note"><strong>Gini = 0</strong> một lớp · <strong>Gini = 0.5</strong> khi 2 lớp 50/50</li>
+            </ul>
+          </div>
+          <div class="formula-block">
+            <p>② ΔGini — mức giảm Gini khi chia theo <strong>A</strong></p>
+            <p class="formula-tag">Tổng quát</p>
+            <div class="formula formula-sm" data-tex="\Delta\mathrm{Gini}(S,A)=\mathrm{Gini}(S)-\sum_{v}\dfrac{|S_v|}{|S|}\cdot\mathrm{Gini}(S_v)"></div>
+            <p class="formula-tag">Phân tích (dễ tính)</p>
+            <div class="formula formula-easy formula-sm" data-tex="\Delta\mathrm{Gini}=\mathrm{Gini}_{\mathrm{before}}-\mathrm{Gini}_{\mathrm{after}}"></div>
+            <div class="formula formula-easy formula-sm" data-tex="\mathrm{Gini}_{\mathrm{after}}=\dfrac{n_1}{N}\mathrm{Gini}_1+\cdots+\dfrac{n_k}{N}\mathrm{Gini}_k"></div>
+            <ul class="symbol-legend">
+              <li><strong>A</strong> — đặc trưng dùng để chia</li>
+              <li><strong>v</strong> — một giá trị của A · <strong>k</strong> — số nhánh</li>
+              <li><strong>S<sub>v</sub></strong> — nhóm con khi A = v</li>
+              <li><strong>|S|</strong> (= <strong>N</strong>) — số mẫu tập gốc</li>
+              <li><strong>|S<sub>v</sub>|</strong> (= <strong>n<sub>j</sub></strong>) — số mẫu nhánh j</li>
+              <li><strong>|S<sub>v</sub>| / |S|</strong> — trọng số nhánh (nhóm to nặng hơn)</li>
+              <li><strong>Gini<sub>before</sub></strong> = Gini(S) — trước khi chia</li>
+              <li><strong>Gini<sub>after</sub></strong> — Gini trung bình có trọng số sau chia</li>
+              <li class="legend-note"><strong>ΔGini càng lớn</strong> → cách chia càng tốt</li>
+            </ul>
+          </div>
         </div>
-        <p class="note">Quy tắc: <em>Mây → luôn đi</em> · <em>Nắng + ẩm cao → không</em> · <em>Mưa + gió mạnh → không</em></p>
+      </div>
+    </section>
+
+    <!-- 13. Map Gini symbols -->
+    <section class="slide" data-slide-id="gini-map" data-title="Đọc Gini">
+      <div class="slide-inner">
+        <p class="eyebrow">Cầu nối · Cách 2</p>
+        <h2>Gán ký hiệu vào công thức Gini</h2>
+        <p class="lead">
+          Giống slide Entropy: chỉ xác định <strong>ký hiệu lấy từ đâu</strong>. <em>Chưa tính</em> ra số.
+        </p>
+        <div class="map-grid">
+          <div class="map-card">
+            <h3>Gini — gán ký hiệu</h3>
+            <table class="mini-map-table">
+              <thead><tr><th>Kết quả</th><th>Số mẫu</th></tr></thead>
+              <tbody>
+                <tr><td>Yes</td><td>3</td></tr>
+                <tr><td>No</td><td>1</td></tr>
+                <tr class="total"><td>Tổng</td><td>4</td></tr>
+              </tbody>
+            </table>
+            <div class="formula formula-easy formula-sm" data-tex="\mathrm{Gini}(S) = 1 - \left((p_{\mathrm{Yes}})^2 + (p_{\mathrm{No}})^2\right)"></div>
+            <ul class="map-bind">
+              <li><strong>S</strong> = 4 mẫu</li>
+              <li><strong>p<sub>Yes</sub></strong> = 3/4</li>
+              <li><strong>p<sub>No</sub></strong> = 1/4</li>
+            </ul>
+          </div>
+          <div class="map-card">
+            <h3>Gini<sub>after</sub> — gán ký hiệu</h3>
+            <table class="mini-map-table">
+              <thead><tr><th>Nhánh</th><th>Số mẫu</th><th>Gini</th></tr></thead>
+              <tbody>
+                <tr><td>A = v<sub>1</sub></td><td>3</td><td>Gini<sub>1</sub></td></tr>
+                <tr><td>A = v<sub>2</sub></td><td>1</td><td>Gini<sub>2</sub></td></tr>
+                <tr class="total"><td>Tổng</td><td>4</td><td></td></tr>
+              </tbody>
+            </table>
+            <div class="formula formula-easy formula-sm" data-tex="\mathrm{Gini}_{\mathrm{after}} = \dfrac{3}{4}\mathrm{Gini}_1 + \dfrac{1}{4}\mathrm{Gini}_2"></div>
+            <ul class="map-bind">
+              <li><strong>N</strong> = 4 · <strong>n<sub>1</sub></strong> = 3 · <strong>n<sub>2</sub></strong> = 1</li>
+              <li><strong>Gini<sub>1</sub>, Gini<sub>2</sub></strong> — Gini từng nhánh (chưa tính)</li>
+              <li><strong>ΔGini</strong> = Gini<sub>before</sub> − Gini<sub>after</sub></li>
+            </ul>
+          </div>
+        </div>
+        <p class="callout map-callout">Sang slide sau: nhét số từ bảng Picnic vào đúng các vị trí này và tính.</p>
+      </div>
+    </section>
+
+    <!-- 14a. Gini values -->
+    <section class="slide" data-slide-id="gini-h" data-title="Tính Gini">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 2 · Bước 1</p>
+        <h2>Tính Gini — theo từng đặc trưng</h2>
+        <p class="lead calc-lead">
+          <strong>Gini</strong> = độ lẫn của một nhóm (không dùng log).
+          Trước hết tính Gini của cả bảng (Gini<sub>before</sub>).
+          Sau đó với từng đặc trưng, tính Gini của mỗi nhánh.
+        </p>
+        <div data-picnic="gini-h"></div>
+      </div>
+    </section>
+
+    <!-- 14b. ΔGini -->
+    <section class="slide" data-slide-id="gini-calc" data-title="Cách 2 · ΔGini">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 2 · Bước 2</p>
+        <h2>Gini<sub>after</sub> &amp; ΔGini — cả 3 đặc trưng</h2>
+        <p class="lead calc-lead">
+          ΔGini = Gini<sub>before</sub> − Gini<sub>after</sub>. Trước hết nhắc lại Gini<sub>before</sub>:
+        </p>
+        <div data-picnic="gini-calc"></div>
+      </div>
+    </section>
+
+    <!-- 14c. Gini grow branch 0 -->
+    <section class="slide" data-slide-id="gini-grow" data-title="Gini · Nhánh 1">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 2 · Bước 3</p>
+        <h2>Nhánh — tính ΔGini rõ từng bước</h2>
+        <div data-picnic="gini-grow-0"></div>
+      </div>
+    </section>
+
+    <!-- 14d. Gini grow branch 1 -->
+    <section class="slide" data-slide-id="gini-grow-rain" data-title="Gini · Nhánh 2">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 2 · Bước 4</p>
+        <h2>Nhánh — tính ΔGini rõ từng bước</h2>
+        <div data-picnic="gini-grow-1"></div>
+      </div>
+    </section>
+
+    <!-- 14d2. Gini continue impure -->
+    <section class="slide" data-slide-id="gini-grow-deep" data-title="Gini · Chia tiếp">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 2 · Bước 5</p>
+        <h2>Nhóm còn lẫn — tính ΔGini tiếp</h2>
+        <div data-picnic="gini-grow-deep"></div>
+      </div>
+    </section>
+
+    <!-- 14e. Gini result tree -->
+    <section class="slide" data-slide-id="gini-result" data-title="Cây Gini">
+      <div class="slide-inner">
+        <p class="eyebrow">Áp dụng · Cách 2 · Kết quả</p>
+        <h2>Cây quyết định bằng Gini</h2>
+        <p class="lead calc-lead">
+          Dựng từ các bước ΔGini vừa tính (lá <code>*</code> = không thuần).
+        </p>
+        <div data-picnic="gini-result"></div>
       </div>
     </section>
 
     <!-- 12. Algorithms -->
-    <section class="slide" data-title="Thuật toán">
+    <section class="slide" data-slide-id="algorithms" data-title="Thuật toán">
       <div class="slide-inner">
         <p class="eyebrow">Các thuật toán</p>
         <h2>ID3 · C4.5 · CART</h2>
@@ -564,7 +711,7 @@
           <div class="algo-row">
             <span><strong>C4.5</strong></span>
             <span>Gain Ratio</span>
-            <span>Xử lý số liên tục, missing values</span>
+            <span>Mở rộng ID3 (số liên tục, missing…)</span>
           </div>
           <div class="algo-row">
             <span><strong>CART</strong></span>
@@ -572,12 +719,11 @@
             <span>Nhị phân · phân loại &amp; hồi quy</span>
           </div>
         </div>
-        <p class="callout">Trong Python (<code>sklearn</code>): <code>DecisionTreeClassifier</code> / <code>DecisionTreeRegressor</code> dùng CART.</p>
       </div>
     </section>
 
     <!-- 13. Pros & Cons -->
-    <section class="slide" data-title="Ưu nhược">
+    <section class="slide" data-slide-id="pros-cons" data-title="Ưu nhược">
       <div class="slide-inner">
         <p class="eyebrow">Đánh giá</p>
         <h2>Ưu điểm &amp; Nhược điểm</h2>
@@ -585,60 +731,86 @@
           <div class="card pro">
             <h3>✓ Ưu điểm</h3>
             <ul>
-              <li>Dễ hiểu, dễ giải thích (white-box)</li>
-              <li>Không cần chuẩn hóa dữ liệu</li>
-              <li>Xử lý được cả số và categorical</li>
-              <li>Nhanh khi dự đoán</li>
-              <li>Ít giả định về phân phối</li>
+              <li>Dễ đọc: nhìn cây là hiểu <em>vì sao</em> ra kết luận (như hỏi từng bước đi picnic)</li>
+              <li>Dùng được cả đặc trưng chữ (Nắng / Mưa) lẫn số</li>
+              <li>Không cần chỉnh số liệu về cùng một thang đo trước khi học</li>
+              <li>Dự đoán nhanh — chỉ lần theo vài câu hỏi trên cây</li>
             </ul>
           </div>
           <div class="card con">
             <h3>✗ Nhược điểm</h3>
             <ul>
-              <li>Dễ <strong>overfitting</strong> nếu cây quá sâu</li>
-              <li>Không ổn định (đổi 1 mẫu → cây đổi)</li>
-              <li>Biên quyết định dạng “bậc thang”</li>
-              <li>Thiên lệch đặc trưng nhiều giá trị</li>
+              <li>Cây quá sâu dễ <strong>học thuộc lòng</strong> (overfitting) bảng train → kém với tình huống mới</li>
+              <li>Đổi / thêm vài dòng dữ liệu có thể làm cây đổi hẳn</li>
+              <li>Mỗi lần chỉ hỏi <em>một</em> đặc trưng → ranh giới quyết định hơi “thô”, dạng bậc thang</li>
+              <li>Đặc trưng có <em>nhiều giá trị</em> dễ được chọn hơn — dù chưa chắc hữu ích hơn (thiên lệch / bias)</li>
             </ul>
           </div>
         </div>
+        <p class="note">
+          <strong>Tóm lại:</strong> Decision Tree mạnh về <strong>khả năng giải thích</strong> (interpretability),
+          nhưng dễ <strong>overfitting</strong> nếu mô hình quá phức tạp (cây sâu).
+        </p>
       </div>
     </section>
 
     <!-- 14. Overfitting & Pruning -->
-    <section class="slide" data-title="Overfitting">
+    <section class="slide" data-slide-id="overfitting" data-title="Overfitting">
       <div class="slide-inner">
         <p class="eyebrow">Thực hành quan trọng</p>
         <h2>Overfitting &amp; Pruning</h2>
         <div class="cards two">
           <div class="card">
             <h3>Overfitting là gì?</h3>
-            <p>Cây học “thuộc lòng” cả nhiễu trong tập train → kém trên dữ liệu mới.</p>
+            <p>
+              Overfitting xảy ra khi mô hình khớp <strong>quá sát</strong> tập train
+              — kể cả nhiễu — nên hiệu năng cao trên dữ liệu đã thấy,
+              nhưng <strong>khái quát kém</strong> trên dữ liệu mới (test).
+            </p>
             <ul>
-              <li>Cây quá sâu, nhiều lá</li>
-              <li>Accuracy train cao, test thấp</li>
+              <li>Biểu hiện trên cây: độ sâu lớn, số lá nhiều</li>
+              <li>Tiêu chí nhận biết: accuracy train ≫ accuracy test</li>
             </ul>
           </div>
           <div class="card">
-            <h3>Cách khắc phục</h3>
-            <ul>
-              <li><strong>max_depth</strong> — giới hạn độ sâu</li>
-              <li><strong>min_samples_leaf</strong> — lá tối thiểu N mẫu</li>
-              <li><strong>Pruning</strong> — cắt nhánh kém hữu ích</li>
-              <li><strong>Ensemble</strong> — Random Forest, XGBoost</li>
+            <h3>Cách giảm overfitting</h3>
+            <ul class="fix-list">
+              <li>
+                <span><strong>max_depth</strong> — chỉ cho hỏi tối đa N tầng</span>
+                <button type="button" class="ex-link" data-fix="max_depth">xem ví dụ</button>
+              </li>
+              <li>
+                <span><strong>min_samples_leaf</strong> — mỗi lá phải có đủ N mẫu</span>
+                <button type="button" class="ex-link" data-fix="min_leaf">xem ví dụ</button>
+              </li>
+              <li>
+                <span><strong>Pruning</strong> — cắt bớt nhánh không giúp dự đoán mới</span>
+                <button type="button" class="ex-link" data-fix="pruning">xem ví dụ</button>
+              </li>
+              <li>
+                <span><strong>Ensemble</strong> — nhiều cây bỏ phiếu (Random Forest…)</span>
+                <button type="button" class="ex-link" data-fix="ensemble">xem ví dụ</button>
+              </li>
             </ul>
           </div>
         </div>
-        <p class="callout">Mẹo: bắt đầu với <code>max_depth=3~5</code>, rồi tinh chỉnh bằng cross-validation.</p>
+        <p class="callout">
+          Thực tế: thử vài <code>max_depth</code> (vd. 3, 5, 7) và chọn mức
+          hiệu năng tốt trên tập kiểm tra — không có giá trị “đúng tuyệt đối”.
+        </p>
       </div>
     </section>
 
-    <!-- 15. Applications + Summary -->
-    <section class="slide" data-title="Ứng dụng">
+    <!-- 15. Applications -->
+    <section class="slide" data-slide-id="apps" data-title="Ứng dụng">
       <div class="slide-inner">
         <p class="eyebrow">Thực tế</p>
-        <h2>Ứng dụng &amp; Tóm tắt</h2>
-        <div class="apps">
+        <h2>Ứng dụng thực tế</h2>
+        <p class="lead apps-lead">
+          Bấm một ô để mở demo: xem bảng mẫu, cây quyết định, và
+          <strong>tự trả lời từng câu hỏi</strong> theo cây.
+        </p>
+        <div class="apps apps-only">
           <button type="button" class="app" data-app="medical">🏥 Chẩn đoán y tế</button>
           <button type="button" class="app" data-app="fraud">💳 Phát hiện gian lận</button>
           <button type="button" class="app" data-app="credit">🏦 Duyệt tín dụng</button>
@@ -646,26 +818,17 @@
           <button type="button" class="app" data-app="quality">🏭 Kiểm soát chất lượng</button>
           <button type="button" class="app" data-app="spam">📧 Lọc spam</button>
         </div>
-        <p class="apps-hint">Bấm từng ô để xem bảng + cây quyết định (modal)</p>
-        <div class="summary-box">
-          <h3>Nhớ 4 ý chính</h3>
-          <ol>
-            <li>Decision Tree = chuỗi câu hỏi chia dữ liệu thành nhóm thuần</li>
-            <li>Chọn đặc trưng bằng Entropy/Gini (độ sạch tăng tối đa)</li>
-            <li>Dễ hiểu nhưng dễ overfit → cần giới hạn độ sâu / pruning</li>
-            <li>Nền tảng của Random Forest &amp; Gradient Boosting</li>
-          </ol>
-        </div>
       </div>
     </section>
 
     <!-- 16. Live demo -->
-    <section class="slide" data-title="Live demo">
+    <section class="slide" data-slide-id="live-demo" data-title="Live demo">
       <div class="slide-inner demo-slide">
         <div class="demo-head">
           <div class="demo-head-text">
             <p class="eyebrow">Thực hành · Live</p>
             <h2>Demo: tham dự thuyết trình?</h2>
+            <p class="demo-lead">Mỗi người thêm vài mẫu → xem cây thay đổi như thế nào.</p>
           </div>
           <div class="demo-head-actions">
             <p class="demo-meta"><span id="demo-count">0</span> mẫu · realtime</p>
@@ -706,20 +869,22 @@
     </section>
 
     <!-- 17. Q&A -->
-    <section class="slide" data-title="Q&A">
+    <section class="slide" data-slide-id="qa" data-title="Q&A">
       <div class="slide-bg"></div>
       <div class="slide-inner title-slide end-slide">
         <p class="eyebrow">Kết thúc</p>
-        <h1>Cảm ơn!</h1>
-        <p class="subtitle">Questions &amp; Answers</p>
-        <ul class="end-points">
-          <li>Decision Tree = flowchart học từ dữ liệu</li>
-          <li>Chia bằng Information Gain / Gini</li>
-          <li>Giải thích được · cần tránh overfitting</li>
-        </ul>
+        <h1>Cảm ơn mọi người đã lắng nghe</h1>
       </div>
     </section>
   </div>
+
+  <aside class="slide-rail" id="slide-rail" aria-label="Danh sách slide" hidden>
+    <div class="slide-rail-head">
+      <span class="slide-rail-title">Slides</span>
+      <button type="button" class="btn-present" id="btn-present">Trình chiếu</button>
+    </div>
+    <ol class="slide-rail-list" id="slide-rail-list"></ol>
+  </aside>
 
   <nav class="controls" aria-label="Điều khiển slide">
     <button type="button" id="prev" aria-label="Slide trước">←</button>
@@ -728,6 +893,9 @@
     </div>
     <span class="counter" id="counter">1 / 16</span>
     <button type="button" id="next" aria-label="Slide sau">→</button>
+    <button type="button" class="btn-present controls-present" id="btn-present-bar" title="Trình chiếu">
+      Trình chiếu
+    </button>
   </nav>
 
   <div class="app-modal" id="app-modal" hidden>
@@ -751,7 +919,11 @@
             </table>
           </div>
         </section>
-        <section class="app-modal-panel">
+        <section class="app-modal-panel app-play-panel">
+          <h3>Trò chơi nhập vai</h3>
+          <div id="modal-play" class="app-play"></div>
+        </section>
+        <section class="app-modal-panel app-tree-panel">
           <h3>Cây quyết định</h3>
           <div class="app-modal-tree" id="modal-tree"></div>
           <p class="app-modal-note" id="modal-note"></p>
@@ -760,12 +932,33 @@
     </div>
   </div>
 
+  <div class="ex-modal" id="ex-modal" hidden>
+    <div class="ex-modal-backdrop" data-close-ex></div>
+    <div class="ex-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="ex-modal-title">
+      <header class="ex-modal-header">
+        <div>
+          <p class="eyebrow">Ví dụ khắc phục</p>
+          <h2 id="ex-modal-title">—</h2>
+        </div>
+        <button type="button" class="ex-modal-close" data-close-ex aria-label="Đóng">×</button>
+      </header>
+      <div class="ex-modal-body" id="ex-modal-body"></div>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin></script>
+  <script src="math.js"></script>
   <script src="vendor/qrcode.js"></script>
   <script src="examples/apps.js"></script>
   <script src="examples/tree.js"></script>
+  <script src="lib/picnic.js"></script>
   <script src="script.js"></script>
   <script src="demo.js"></script>
   <script src="apps-modal.js"></script>
+  <script src="overfit-examples.js"></script>
+  <script>
+    window.renderDeckMath?.(document);
+  </script>
 </body>
 </html>

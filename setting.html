@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tuỳ chỉnh slide — Decision Tree</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Literata:opsz,wght@7..72,500;7..72,700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="setting.css" />
+</head>
+<body class="ppt-body">
+  <div class="ppt-app">
+    <header class="ppt-ribbon">
+      <div class="ppt-brand">
+        <span class="ppt-logo">DT</span>
+        <div>
+          <strong>Decision Tree</strong>
+          <span>Chỉnh sửa giống PowerPoint — bấm text trên slide để sửa</span>
+        </div>
+      </div>
+      <div class="ppt-ribbon-actions">
+        <span class="ppt-status" id="status" aria-live="polite"></span>
+        <button type="button" class="ppt-btn" id="btn-hide" title="Ẩn / hiện slide đang chọn">Ẩn slide</button>
+        <button type="button" class="ppt-btn" id="btn-reset">Reset gốc</button>
+        <a class="ppt-btn" href="/" target="_blank" rel="noopener">Trình chiếu</a>
+        <button type="button" class="ppt-btn primary" id="btn-save">Lưu</button>
+      </div>
+    </header>
+
+    <div class="ppt-workspace">
+      <aside class="ppt-thumbs" aria-label="Danh sách slide">
+        <div class="ppt-thumbs-head">
+          <span>Slides</span>
+          <button type="button" class="ppt-linkish" id="btn-show-all">Hiện tất cả</button>
+        </div>
+        <div class="ppt-thumbs-list" id="thumb-list"></div>
+      </aside>
+
+      <main class="ppt-stage">
+        <div class="ppt-canvas-wrap">
+          <div class="ppt-canvas" id="canvas">
+            <p class="ppt-empty">Đang tải slide…</p>
+          </div>
+          <div class="ppt-canvas-meta">
+            <span id="slide-label">—</span>
+            <span class="ppt-hint">Bấm vào chữ trên slide để sửa · Esc bỏ chọn</span>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin></script>
+  <script src="math.js"></script>
+  <script src="editable.js"></script>
+  <script src="setting.js"></script>
+</body>
+</html>

@@ -5,12 +5,12 @@
   const app = apps[appId] || apps.medical;
 
   const positiveByApp = {
-    medical: ["Có"],
-    fraud: ["Không"],
+    medical: ["Không"], // không cần khám thêm = ổn
+    fraud: ["Không"], // không gian lận = hợp lệ
     credit: ["Có"],
     shopping: ["Có"],
     quality: ["Có"],
-    spam: ["Không"],
+    spam: ["Không"], // không spam = thư hợp lệ
   };
 
   document.title = `${app.icon} ${app.title} — Decision Tree`;

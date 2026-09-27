@@ -24,7 +24,7 @@
 
   function renderTable(rows) {
     if (countEl) countEl.textContent = String(rows.length);
-    const show = rows.slice(-12).reverse();
+    const show = rows.slice(-12);
     tableBody.innerHTML = show
       .map((r) => {
         const cls = r.attend === "Có" ? "yes" : "no";

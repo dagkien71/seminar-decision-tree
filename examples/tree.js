@@ -141,6 +141,9 @@ window.SimpleTree = (function () {
   function renderSvg(tree, opts = {}) {
     if (!tree) return "<p class='demo-empty'>Chưa có dữ liệu</p>";
     const positiveSet = new Set(opts.positiveLabels || ["Có"]);
+    const activePath = Array.isArray(opts.activePath) ? opts.activePath.map(String) : [];
+    const trackPath = Array.isArray(opts.activePath);
+    const atLeaf = Boolean(opts.atLeaf);
     const laid = layoutTree(tree);
     const gap = opts.gap || 118;
     assignX(laid, gap * 0.5, gap);
@@ -173,21 +176,55 @@ window.SimpleTree = (function () {
       return s.length > 16 ? `${s.slice(0, 14)}…` : s;
     }
 
-    function draw(n, parent) {
+    /** matched = số cạnh đã khớp với activePath khi tới nút này; -1 = ngoài đường đi */
+    function draw(n, parent, matched) {
       if (!n) return;
       const x = n.x + shift;
       const y = yOf(n.depth);
+      let nodeState = "";
+      let branchState = "";
+      if (trackPath) {
+        const onRoute = matched >= 0;
+        const isCurrent = onRoute && matched === activePath.length;
+        const isPast = onRoute && matched < activePath.length;
+        nodeState = isCurrent ? " is-current" : isPast ? " is-on-path" : " is-dim";
+        if (parent) {
+          branchState = isCurrent
+            ? " is-current"
+            : onRoute
+              ? " is-on-path"
+              : " is-dim";
+        }
+      }
+
       if (parent) {
         const px = parent.x + shift;
         const py = yOf(parent.depth);
         const midY = (py + y) / 2;
         parts.push(
-          `<path class="demo-branch" d="M${px} ${py + 11} V${midY} H${x} V${y - 11}" />`
+          `<path class="demo-branch${branchState}" d="M${px} ${py + 11} V${midY} H${x} V${y - 11}" />`
         );
         if (n._edge) {
-          const labelX = px === x ? x + 14 : (px + x) / 2;
+          // Đặt nhãn gần cột xuống tới nút con; ≥3 nhánh thì 2 bên xích ra để giữa đỡ chật
+          let labelX = x;
+          const sibN = n._sibN || 1;
+          const sibI = n._sibI || 0;
+          if (sibN >= 3) {
+            const mid = (sibN - 1) / 2;
+            labelX = x + (sibI - mid) * 20;
+          } else if (Math.abs(px - x) < 1) {
+            labelX = x - 16;
+          } else {
+            labelX = (px + x) / 2;
+          }
+          const edgeCls =
+            !trackPath
+              ? "edge-label"
+              : branchState.includes("is-dim")
+                ? "edge-label is-dim"
+                : "edge-label is-hot";
           parts.push(
-            `<text class="edge-label" x="${labelX}" y="${midY - 3}" style="font-size:10px">${escapeHtml(n._edge)}</text>`
+            `<text class="${edgeCls}" x="${labelX}" y="${midY - 3}" style="font-size:10px">${escapeHtml(n._edge)}</text>`
           );
         }
       }
@@ -195,27 +232,42 @@ window.SimpleTree = (function () {
       if (n.type === "leaf") {
         const cls = positiveSet.has(n.label) ? "node-yes" : "node-no";
         const tw = 72;
-        parts.push(`<rect class="${cls}" x="${x - tw / 2}" y="${y - 12}" width="${tw}" height="24" rx="6" />`);
+        const isCurrent = nodeState.includes("is-current");
+        const ring = isCurrent ? ` stroke="#0d9488" stroke-width="3"` : "";
         parts.push(
-          `<text class="node-text on-dark" x="${x}" y="${y + 4}" style="font-size:10px">${escapeHtml(n.label)} (${n.count})</text>`
+          `<rect class="${cls}${nodeState}" x="${x - tw / 2}" y="${y - 12}" width="${tw}" height="24" rx="6"${ring} />`
+        );
+        parts.push(
+          `<text class="node-text on-dark${nodeState}" x="${x}" y="${y + 4}" style="font-size:10px">${escapeHtml(n.label)} (${n.count})</text>`
         );
       } else {
         const label = shortLabel(n.label);
         const tw = Math.min(120, 14 + label.length * 6.5);
+        const isCurrent = nodeState.includes("is-current");
+        const ring = isCurrent ? ` stroke="#0d9488" stroke-width="3"` : "";
         parts.push(
-          `<rect class="node-mid" x="${x - tw / 2}" y="${y - 12}" width="${tw}" height="24" rx="6" />`
+          `<rect class="node-mid${nodeState}" x="${x - tw / 2}" y="${y - 12}" width="${tw}" height="24" rx="6"${ring} />`
         );
         parts.push(
-          `<text class="node-text" x="${x}" y="${y + 4}" style="font-size:10px">${escapeHtml(label)}</text>`
+          `<text class="node-text${nodeState}" x="${x}" y="${y + 4}" style="font-size:10px">${escapeHtml(label)}</text>`
         );
-        for (const e of n.childrenLaid) {
+        const kids = n.childrenLaid || [];
+        kids.forEach((e, i) => {
           e.child._edge = e.value;
-          draw(e.child, n);
-        }
+          e.child._sibI = i;
+          e.child._sibN = kids.length;
+          let childMatched = -1;
+          if (trackPath && matched >= 0 && matched < activePath.length && activePath[matched] === String(e.value)) {
+            childMatched = matched + 1;
+          } else if (!trackPath) {
+            childMatched = 0;
+          }
+          draw(e.child, n, childMatched);
+        });
       }
     }
 
-    draw(laid, null);
+    draw(laid, null, 0);
     parts.push("</svg>");
     return parts.join("");
   }
