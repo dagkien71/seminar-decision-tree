@@ -10,18 +10,10 @@ Machine Learning · Seminar
 Decision Tree
 Cây quyết định — thuật toán học có giám sát dễ hiểu nhất
 Ví dụ: Có tham dự buổi thuyết trình Decision Tree?
-[Sơ đồ]
-· Bận
-· Rảnh
-· Có
-· Không
-· Hôm nay rảnh?
-· Không tham dự
-· Thích chủ đề này?
-· Tham dự!
-· Bỏ qua
+[Bảng] Luân / Thông / Kiên · Hôm nay rảnh? · Thích chủ đề này? · Kết quả
+       (Bận→Không tham dự | Rảnh+Có→Tham dự | Rảnh+Không→Không tham dự)
+[→] [Cây cùng câu hỏi / cùng lá kết quả]
 ← → hoặc Space để chuyển slide
-Quét để mở slide
 ========================================================================
 
 SLIDE 02  |  Mục lục  (agenda)
@@ -350,11 +342,11 @@ SLIDE 18  |  Gini  (gini)
 Công thức · Cách 2
 Gini Impurity & ΔGini
 Đo độ lẫn; ΔGini đo mức giảm sau khi chia. (Chưa gắn số liệu.)
-① Gini(S) = 1 − ( Σ_i (p_i)^2 )
-   2 lớp: Gini(S) = 1 − ( (p_Yes)^2 + (p_No)^2 )
-② ΔGini = Gini_before − Gini_after
-   Gini_after = (n_1/N)Gini_1 + … + (n_k/N)Gini_k
-ΔGini càng lớn → A càng tốt.
+① Gini(S) = 1 − Σ_{i=1}^{C} (p_i)²
+   C = số lớp; 2 lớp: Gini(S) = 1 − ( (p_Yes)² + (p_No)² )
+② ΔGini = Gini(S) − Gini_split   (Gini Gain — mức giảm độ lẫn)
+   Gini_split = Σ_k ( N_k/N × Gini_k )
+ΔGini càng lớn → câu hỏi / cách chia càng tốt.
 ========================================================================
 
 SLIDE 19  |  Đọc Gini  (gini-map)  [ẨN MẶC ĐỊNH]

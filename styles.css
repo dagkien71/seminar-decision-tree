@@ -219,16 +219,116 @@ h3 {
 }
 
 .title-tree-svg {
-  max-width: 480px;
-  margin: 1rem 0 0;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  overflow: visible;
+}
+
+.title-example {
+  margin-top: 1.5rem;
+  width: 100%;
 }
 
 .title-example-caption {
-  margin-top: 1.5rem;
-  font-size: 0.95rem;
+  margin: 0 0 0.7rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #9fd4cb;
   letter-spacing: 0.02em;
+}
+
+.title-example-flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.75rem 0.85rem;
+  align-items: stretch;
+  width: 100%;
+}
+
+.title-example-table-wrap,
+.title-tree-panel {
+  margin: 0;
+  min-width: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0.9rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-sizing: border-box;
+  overflow: visible;
+}
+
+.title-tree-panel {
+  pointer-events: none;
+}
+
+.title-example-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  color: #e8f5f2;
+}
+
+.title-example-table th,
+.title-example-table td {
+  padding: 0.55rem 0.6rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: normal;
+  background: transparent;
+}
+
+.title-example-table th {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9fd4cb;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.title-example-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.title-example-table tbody tr,
+.title-example-table tbody tr:nth-child(even),
+.title-example-table tbody tr:nth-child(odd),
+.title-example-table tbody tr:hover,
+.title-example-table tbody tr:focus,
+.title-example-table tbody tr:focus-within {
+  background: transparent !important;
+}
+
+.title-example-table tbody tr:hover td,
+.title-example-table tbody tr:nth-child(even) td {
+  background: transparent !important;
+}
+
+.title-example-table td.yes {
+  color: #7ddea8;
+  font-weight: 700;
+}
+
+.title-example-table td.no {
+  color: #f0a59a;
+  font-weight: 700;
+}
+
+.title-example-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.85);
+  user-select: none;
+  align-self: center;
 }
 
 .struct-tree-svg {
@@ -493,90 +593,38 @@ h3 {
   color: #fff;
   text-align: left;
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
   width: min(1400px, 100%);
-  padding-right: 300px;
+  padding-right: 0;
 }
 
 .title-slide h1 {
   color: #fff;
 }
 
-.title-left {
+.title-hero {
   min-width: 0;
-  max-width: 520px;
-}
-
-.title-qr {
-  position: absolute;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.qr-frame {
-  background: #fff;
-  padding: 1.15rem;
-  border-radius: 18px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.28);
-  line-height: 0;
-}
-
-.qr-frame canvas {
-  width: 260px;
-  height: 260px;
-  display: block;
-  border-radius: 6px;
-}
-
-.qr-label {
-  font-size: 1.05rem;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: 0.02em;
-}
-
-.qr-url {
-  font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.7);
-  text-align: center;
-  max-width: 280px;
-  word-break: break-all;
-  line-height: 1.35;
+  max-width: 42rem;
 }
 
 @media (max-width: 900px) {
   .title-slide {
-    padding-right: 0;
     padding-bottom: 1rem;
   }
 
-  .title-left {
-    max-width: 100%;
+  .title-example-flow {
+    grid-template-columns: 1fr;
   }
 
-  .title-qr {
-    position: static;
-    transform: none;
-    margin-top: 1.25rem;
-  }
-
-  .qr-frame canvas {
-    width: 200px;
-    height: 200px;
-  }
-
-  .title-tree-svg {
-    max-width: 340px;
+  .title-example-arrow {
+    transform: rotate(90deg);
   }
 }
 
 .hint {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   font-size: 0.9rem;
   color: rgba(255, 255, 255, 0.55);
 }

@@ -285,7 +285,6 @@
     const hash = parseInt(location.hash.slice(1), 10);
     go(Number.isFinite(hash) && hash >= 1 ? hash - 1 : 0, true);
     connectDeck();
-    renderShareQr();
   }
 
   boot();
@@ -331,32 +330,4 @@ function detectLanIp() {
       if (m && !m[1].startsWith("127.")) finish(m[1]);
     };
   });
-}
-
-async function renderShareQr() {
-  const canvas = document.getElementById("share-qr");
-  const label = document.getElementById("share-url");
-  if (!canvas) return;
-
-  const lan = await detectLanIp();
-  const url = pageBaseUrl(lan || location.hostname);
-  if (label) label.textContent = url;
-
-  if (typeof QRCode === "undefined" || !QRCode.toCanvas) {
-    console.error("QRCode library missing");
-    return;
-  }
-
-  QRCode.toCanvas(
-    canvas,
-    url,
-    {
-      width: 280,
-      margin: 1,
-      color: { dark: "#0c2e28", light: "#ffffff" },
-    },
-    (err) => {
-      if (err) console.error(err);
-    }
-  );
 }
