@@ -377,8 +377,8 @@
         <div class="formula-row">
           <div class="formula-block">
             <p>① Entropy — độ lẫn của tập <strong>S</strong></p>
-            <p class="formula-tag">Tổng quát</p>
-            <div class="formula" data-tex="H(S) = -\left(\sum_{i} p_i \cdot \log_2(p_i)\right)"></div>
+            <p class="formula-tag">Tổng quát <span class="formula-hint">· bấm công thức</span></p>
+            <div class="formula formula-clickable" data-formula-explain="entropy" data-tex="H(S) = -\left(\sum_{i} p_i \cdot \log_2(p_i)\right)" role="button" tabindex="0" title="Bấm để xem giải thích + ví dụ"></div>
             <p class="formula-tag">Phân tích (2 lớp Yes / No)</p>
             <div class="formula formula-easy formula-sm" data-tex="H(S) = -\left(p_{\mathrm{Yes}}\log_2(p_{\mathrm{Yes}}) + p_{\mathrm{No}}\log_2(p_{\mathrm{No}})\right)"></div>
             <ul class="symbol-legend">
@@ -394,8 +394,8 @@
           </div>
           <div class="formula-block">
             <p>② Information Gain — mức giảm độ lẫn khi chia theo <strong>A</strong></p>
-            <p class="formula-tag">Tổng quát</p>
-            <div class="formula formula-sm" data-tex="\mathrm{Gain}(S,A) = H(S) - \sum_{v}\frac{|S_v|}{|S|}\cdot H(S_v)"></div>
+            <p class="formula-tag">Tổng quát <span class="formula-hint">· bấm công thức</span></p>
+            <div class="formula formula-sm formula-clickable" data-formula-explain="gain" data-tex="\mathrm{Gain}(S,A) = H(S) - \sum_{v}\frac{|S_v|}{|S|}\cdot H(S_v)" role="button" tabindex="0" title="Bấm để xem giải thích + ví dụ"></div>
             <p class="formula-tag">Phân tích (dễ tính)</p>
             <div class="formula formula-easy formula-sm" data-tex="\mathrm{Gain} = H_{\mathrm{before}} - H_{\mathrm{after}}"></div>
             <div class="formula formula-easy formula-sm" data-tex="H_{\mathrm{after}} = \dfrac{n_1}{N}H_1 + \cdots + \dfrac{n_k}{N}H_k"></div>
@@ -575,8 +575,8 @@
         <div class="formula-row">
           <div class="formula-block">
             <p>① Gini — độ lẫn của tập <strong>S</strong></p>
-            <p class="formula-tag">Tổng quát</p>
-            <div class="formula" data-tex="\mathrm{Gini}(S) = 1 - \sum_{i=1}^{C} (p_i)^2"></div>
+            <p class="formula-tag">Tổng quát <span class="formula-hint">· bấm công thức</span></p>
+            <div class="formula formula-clickable" data-formula-explain="gini" data-tex="\mathrm{Gini}(S) = 1 - \sum_{i=1}^{C} (p_i)^2" role="button" tabindex="0" title="Bấm để xem giải thích + ví dụ"></div>
             <p class="formula-tag">Phân tích (2 lớp Yes / No)</p>
             <div class="formula formula-easy formula-sm" data-tex="\mathrm{Gini}(S) = 1 - \left((p_{\mathrm{Yes}})^2 + (p_{\mathrm{No}})^2\right)"></div>
             <ul class="symbol-legend">
@@ -592,10 +592,10 @@
           </div>
           <div class="formula-block">
             <p>② ΔGini — Gini Gain (mức giảm độ lẫn)</p>
-            <p class="formula-tag">Gini Gain</p>
-            <div class="formula" data-tex="\Delta\mathrm{Gini} = \mathrm{Gini}(S) - \mathrm{Gini}_{\mathrm{split}}"></div>
+            <p class="formula-tag">Gini Gain <span class="formula-hint">· bấm công thức</span></p>
+            <div class="formula formula-clickable" data-formula-explain="delta-gini" data-tex="\Delta\mathrm{Gini} = \mathrm{Gini}(S) - \mathrm{Gini}_{\mathrm{split}}" role="button" tabindex="0" title="Bấm để xem giải thích + ví dụ"></div>
             <p class="formula-tag">Gini<sub>split</sub> — trung bình có trọng số</p>
-            <div class="formula formula-sm" data-tex="\mathrm{Gini}_{\mathrm{split}} = \sum_{k}\left(\dfrac{N_k}{N}\times\mathrm{Gini}_k\right)"></div>
+            <div class="formula formula-sm formula-clickable" data-formula-explain="delta-gini" data-tex="\mathrm{Gini}_{\mathrm{split}} = \sum_{k}\left(\dfrac{N_k}{N}\times\mathrm{Gini}_k\right)" role="button" tabindex="0" title="Bấm để xem giải thích + ví dụ"></div>
             <ul class="symbol-legend">
               <li><strong>ΔGini</strong> — mức giảm độ lẫn sau khi chia (càng lớn càng tốt)</li>
               <li><strong>Gini(S)</strong> — độ lẫn nút cha <em>trước</em> khi hỏi / chia</li>
@@ -986,6 +986,37 @@
     </div>
   </div>
 
+  <div class="fx-modal" id="formula-modal" hidden>
+    <div class="fx-modal-backdrop" data-close-fx></div>
+    <div class="fx-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="fx-title">
+      <header class="fx-modal-header">
+        <div>
+          <p class="eyebrow" id="fx-eyebrow">Công thức tổng quát</p>
+          <h2 id="fx-title">—</h2>
+          <p class="fx-blurb" id="fx-blurb"></p>
+        </div>
+        <button type="button" class="fx-modal-close" data-close-fx aria-label="Đóng">×</button>
+      </header>
+      <div class="fx-modal-body">
+        <section class="fx-panel">
+          <h3>Công thức</h3>
+          <div id="fx-formula-wrap" class="fx-formula-wrap">
+            <div class="formula" id="fx-formula"></div>
+          </div>
+          <h3 class="fx-subhead">Các giá trị / ký hiệu</h3>
+          <ul class="fx-symbols" id="fx-symbols"></ul>
+        </section>
+        <section class="fx-panel fx-panel-example">
+          <h3 id="fx-example-title">Ví dụ gán số</h3>
+          <p class="fx-example-lead" id="fx-example-lead"></p>
+          <div id="fx-example-table"></div>
+          <div class="fx-steps" id="fx-steps"></div>
+          <p class="fx-note" id="fx-note"></p>
+        </section>
+      </div>
+    </div>
+  </div>
+
   <script src="/socket.io/socket.io.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin></script>
   <script src="math.js"></script>
@@ -997,6 +1028,7 @@
   <script src="demo.js"></script>
   <script src="apps-modal.js"></script>
   <script src="overfit-examples.js"></script>
+  <script src="formula-explain.js"></script>
   <script>
     window.renderDeckMath?.(document);
   </script>

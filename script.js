@@ -23,40 +23,14 @@
   const DISPLAY_KEY = "dt-follow-remote";
   const DISPLAY_NAME_KEY = "dt-display-name";
 
-  function ensureBadge() {
-    let badge = document.getElementById("display-badge");
-    if (badge) return badge;
-    badge = document.createElement("div");
-    badge.id = "display-badge";
-    badge.className = "display-badge";
-    badge.hidden = true;
-    badge.innerHTML =
-      '<span class="display-badge-label">Remote</span><span class="display-badge-code" id="display-badge-code">—</span>';
-    document.body.appendChild(badge);
-    return badge;
-  }
-
-  function updateDisplayBadge() {
-    const badge = ensureBadge();
-    const codeEl = document.getElementById("display-badge-code");
-    if (codeEl) codeEl.textContent = displayCode ? `#${displayCode}` : "…";
-    badge.hidden = !followRemote;
-    badge.classList.toggle("is-on", followRemote);
-  }
-
   function flashIdentify(payload) {
-    const badge = ensureBadge();
-    if (payload?.code) {
-      displayCode = String(payload.code);
-      updateDisplayBadge();
-    }
-    badge.hidden = false;
-    badge.classList.add("is-identify");
+    if (payload?.code) displayCode = String(payload.code);
+    updateRemoteButton();
+    document.body.classList.add("is-display-identify");
     clearTimeout(identifyTimer);
     identifyTimer = setTimeout(() => {
-      badge.classList.remove("is-identify");
-      if (!followRemote) badge.hidden = true;
-    }, 2200);
+      document.body.classList.remove("is-display-identify");
+    }, 1600);
   }
 
   function isOverview() {
@@ -208,7 +182,6 @@
     btnRemote.title = followRemote
       ? `Màn này là #${displayCode || "?"} — remote chọn đúng mã này mới điều khiển được`
       : "Bật để remote chỉ điều khiển màn này (các tab khác không bị kéo theo)";
-    updateDisplayBadge();
   }
 
   function defaultDisplayName() {
@@ -243,7 +216,6 @@
     displayCode = null;
     if (!socket?.connected) return;
     socket.emit("display:unregister");
-    updateDisplayBadge();
   }
 
   function setFollowRemote(on, persist = true) {
