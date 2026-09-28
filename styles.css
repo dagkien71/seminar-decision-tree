@@ -2574,6 +2574,72 @@ body.mode-overview .controls {
   border-color: var(--accent) !important;
 }
 
+.controls-remote {
+  width: auto !important;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  font-size: 0.78rem !important;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.controls-remote.is-on {
+  background: var(--accent) !important;
+  border-color: var(--accent) !important;
+  color: #fff !important;
+}
+
+.display-badge {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: rgba(12, 46, 40, 0.92);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+}
+
+.display-badge[hidden] {
+  display: none !important;
+}
+
+.display-badge-label {
+  opacity: 0.75;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.display-badge-code {
+  font-size: 1rem;
+}
+
+.display-badge.is-identify {
+  animation: display-identify 0.45s ease-in-out 4;
+  background: #c45c26;
+}
+
+@keyframes display-identify {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.12);
+    opacity: 0.75;
+  }
+}
+
 body.mode-present .controls-present {
   display: none;
 }

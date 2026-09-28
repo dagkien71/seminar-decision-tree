@@ -79,6 +79,62 @@ body {
   font-weight: 600;
 }
 
+.ctrl-screen {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-bottom: 0.55rem;
+}
+
+.ctrl-screen-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.ctrl-screen-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.5rem;
+  align-items: stretch;
+}
+
+.ctrl-screen-select {
+  appearance: none;
+  width: 100%;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+}
+
+.ctrl-identify {
+  appearance: none;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ctrl-screen-hint {
+  margin: 0 0 0.85rem;
+  font-size: 0.82rem;
+  color: #b33a2e;
+  line-height: 1.4;
+}
+
 .ctrl-status {
   align-self: flex-start;
   font-size: 0.82rem;

@@ -56,6 +56,8 @@ app.use(express.static(path.join(__dirname)));
 let rows = seedRows();
 let nextId = 1;
 let deck = { index: 0, slideId: null };
+/** @type {Map<string, { id: string, name: string, index: number, slideId: string|null }>} */
+const displays = new Map();
 
 function publicState() {
   return {
@@ -69,12 +71,25 @@ function deckState() {
   return { ...deck };
 }
 
+function listDisplays() {
+  return [...displays.values()].map((d) => ({ ...d }));
+}
+
+function nextDisplayCode() {
+  const used = new Set([...displays.values()].map((d) => d.code));
+  for (let n = 1; n < 1000; n += 1) {
+    const code = String(n).padStart(2, "0");
+    if (!used.has(code)) return code;
+  }
+  return String(Date.now()).slice(-3);
+}
+
 function broadcast() {
   io.emit("state", publicState());
 }
 
-function broadcastDeck() {
-  io.emit("deck:state", deckState());
+function broadcastDisplays() {
+  io.to("controllers").emit("displays:list", listDisplays());
 }
 
 function applyGoto(payload) {
@@ -92,14 +107,124 @@ function applyGoto(payload) {
   return deckState();
 }
 
+function resolveTargetId(payload) {
+  const requested = payload?.targetId ? String(payload.targetId) : "";
+  if (requested && displays.has(requested)) return requested;
+  if (displays.size === 1) return [...displays.keys()][0];
+  return null;
+}
+
+function sendDeckToDisplay(targetId, state) {
+  if (!targetId || !displays.has(targetId)) return false;
+  const entry = displays.get(targetId);
+  entry.index = state.index;
+  entry.slideId = state.slideId;
+  displays.set(targetId, entry);
+  io.to(targetId).emit("deck:state", { ...state, targetId });
+  broadcastDisplays();
+  return true;
+}
+
 io.on("connection", (socket) => {
   socket.emit("state", publicState());
-  socket.emit("deck:state", deckState());
+
+  socket.on("control:join", (_payload, ack) => {
+    socket.join("controllers");
+    socket.emit("displays:list", listDisplays());
+    if (typeof ack === "function") ack({ ok: true, displays: listDisplays() });
+  });
+
+  socket.on("display:register", (payload, ack) => {
+    const name = String(payload?.name || "Màn chiếu").trim().slice(0, 40) || "Màn chiếu";
+    let index = typeof payload?.index === "number" ? payload.index : deck.index;
+    let slideId = payload?.slideId ? String(payload.slideId) : deck.slideId;
+    const slides = listVisibleSlides();
+    if (slideId) {
+      const found = slides.findIndex((s) => s.id === slideId);
+      if (found >= 0) index = found;
+    }
+    index = Math.max(0, Math.min(Math.max(slides.length - 1, 0), index));
+    slideId = slides[index]?.id || null;
+
+    const existing = displays.get(socket.id);
+    const code = existing?.code || nextDisplayCode();
+    displays.set(socket.id, {
+      id: socket.id,
+      code,
+      name,
+      index,
+      slideId,
+    });
+    socket.join("displays");
+    broadcastDisplays();
+    if (typeof ack === "function") {
+      ack({ ok: true, id: socket.id, code, name, index, slideId });
+    }
+  });
+
+  socket.on("display:identify", (payload, ack) => {
+    const targetId = resolveTargetId(payload || {});
+    if (!targetId) {
+      if (typeof ack === "function") ack({ ok: false, error: "Chưa chọn màn chiếu" });
+      return;
+    }
+    const entry = displays.get(targetId);
+    io.to(targetId).emit("display:identify", {
+      code: entry?.code || null,
+      name: entry?.name || null,
+    });
+    if (typeof ack === "function") ack({ ok: true, targetId, code: entry?.code });
+  });
+
+  socket.on("display:rename", (payload, ack) => {
+    const entry = displays.get(socket.id);
+    if (!entry) {
+      if (typeof ack === "function") ack({ ok: false, error: "Chưa đăng ký màn chiếu" });
+      return;
+    }
+    entry.name = String(payload?.name || entry.name).trim().slice(0, 40) || entry.name;
+    displays.set(socket.id, entry);
+    broadcastDisplays();
+    if (typeof ack === "function") ack({ ok: true, ...entry });
+  });
+
+  socket.on("display:unregister", (_payload, ack) => {
+    if (displays.delete(socket.id)) broadcastDisplays();
+    if (typeof ack === "function") ack({ ok: true });
+  });
+
+  socket.on("display:sync", (payload, ack) => {
+    const entry = displays.get(socket.id);
+    if (!entry) {
+      if (typeof ack === "function") ack({ ok: false });
+      return;
+    }
+    const state = applyGoto(payload || {});
+    entry.index = state.index;
+    entry.slideId = state.slideId;
+    displays.set(socket.id, entry);
+    // Chỉ cập nhật remote/control — không đẩy sang các màn khác
+    io.to("controllers").emit("deck:state", { ...state, targetId: socket.id });
+    broadcastDisplays();
+    if (typeof ack === "function") ack({ ok: true, ...state });
+  });
 
   socket.on("deck:goto", (payload, ack) => {
     const state = applyGoto(payload || {});
-    broadcastDeck();
-    if (typeof ack === "function") ack({ ok: true, ...state });
+    const targetId = resolveTargetId(payload || {});
+    const delivered = targetId ? sendDeckToDisplay(targetId, state) : false;
+    io.to("controllers").emit("deck:state", {
+      ...state,
+      targetId: delivered ? targetId : null,
+    });
+    if (typeof ack === "function") {
+      ack({
+        ok: delivered,
+        ...state,
+        targetId: delivered ? targetId : null,
+        error: delivered ? undefined : "Chưa chọn / chưa có màn chiếu nhận remote",
+      });
+    }
   });
 
   socket.on("submit", (payload, ack) => {
@@ -142,6 +267,10 @@ io.on("connection", (socket) => {
     rows = seedRows();
     broadcast();
     if (typeof ack === "function") ack({ ok: true });
+  });
+
+  socket.on("disconnect", () => {
+    if (displays.delete(socket.id)) broadcastDisplays();
   });
 });
 

@@ -19,12 +19,25 @@
         <p class="eyebrow">Admin · Remote</p>
         <h1>Điều khiển slide</h1>
         <p class="ctrl-sub">
-          Chọn trang → màn hình chiếu nhảy đúng slide.
-          Trình duyệt <strong>không cho</strong> web bắt nút âm lượng — dùng nút dưới hoặc tai nghe (Next/Prev).
+          Chọn <strong>màn chiếu</strong> đã bật Remote → chỉ màn đó đổi slide.
+          Máy khác mở web vẫn xem độc lập, không bị kéo theo.
         </p>
       </div>
       <div class="ctrl-status" id="status">Đang kết nối…</div>
     </header>
+
+    <label class="ctrl-screen">
+      <span class="ctrl-screen-label">Màn chiếu</span>
+      <div class="ctrl-screen-row">
+        <select id="display-select" class="ctrl-screen-select" aria-label="Chọn màn chiếu">
+          <option value="">— Đang tải —</option>
+        </select>
+        <button type="button" class="ctrl-identify" id="btn-identify" title="Nhấp nháy màn đang chọn">
+          Nhận diện
+        </button>
+      </div>
+    </label>
+    <p class="ctrl-screen-hint" id="display-hint" hidden></p>
 
     <button type="button" class="ctrl-hw" id="btn-hw">
       Bật điều khiển tai nghe / remote

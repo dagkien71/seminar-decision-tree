@@ -8,6 +8,7 @@
   const slideRailList = document.getElementById("slide-rail-list");
   const btnPresent = document.getElementById("btn-present");
   const btnPresentBar = document.getElementById("btn-present-bar");
+  const btnRemote = document.getElementById("btn-remote");
   let slides = [];
   let index = 0;
   let syncing = false;
@@ -15,6 +16,48 @@
   let controlsHideTimer = null;
   let controlsPinned = false;
   let mode = "present"; // present | overview
+  let followRemote = false;
+  let displayId = null;
+  let displayCode = null;
+  let identifyTimer = null;
+  const DISPLAY_KEY = "dt-follow-remote";
+  const DISPLAY_NAME_KEY = "dt-display-name";
+
+  function ensureBadge() {
+    let badge = document.getElementById("display-badge");
+    if (badge) return badge;
+    badge = document.createElement("div");
+    badge.id = "display-badge";
+    badge.className = "display-badge";
+    badge.hidden = true;
+    badge.innerHTML =
+      '<span class="display-badge-label">Remote</span><span class="display-badge-code" id="display-badge-code">—</span>';
+    document.body.appendChild(badge);
+    return badge;
+  }
+
+  function updateDisplayBadge() {
+    const badge = ensureBadge();
+    const codeEl = document.getElementById("display-badge-code");
+    if (codeEl) codeEl.textContent = displayCode ? `#${displayCode}` : "…";
+    badge.hidden = !followRemote;
+    badge.classList.toggle("is-on", followRemote);
+  }
+
+  function flashIdentify(payload) {
+    const badge = ensureBadge();
+    if (payload?.code) {
+      displayCode = String(payload.code);
+      updateDisplayBadge();
+    }
+    badge.hidden = false;
+    badge.classList.add("is-identify");
+    clearTimeout(identifyTimer);
+    identifyTimer = setTimeout(() => {
+      badge.classList.remove("is-identify");
+      if (!followRemote) badge.hidden = true;
+    }, 2200);
+  }
 
   function isOverview() {
     return mode === "overview";
@@ -146,12 +189,77 @@
   });
 
   function emitGoto() {
-    if (syncing || !socket?.connected || !slides.length) return;
+    // Chỉ báo cho remote khi màn này đang nhận điều khiển — không broadcast mọi tab
+    if (syncing || !followRemote || !socket?.connected || !slides.length) return;
     const slide = slides[index];
-    socket.emit("deck:goto", {
+    socket.emit("display:sync", {
       index,
       slideId: slide?.dataset?.slideId || null,
     });
+  }
+
+  function updateRemoteButton() {
+    if (!btnRemote) return;
+    btnRemote.classList.toggle("is-on", followRemote);
+    btnRemote.setAttribute("aria-pressed", followRemote ? "true" : "false");
+    btnRemote.textContent = followRemote
+      ? `Remote #${displayCode || "…"}`
+      : "Remote: tắt";
+    btnRemote.title = followRemote
+      ? `Màn này là #${displayCode || "?"} — remote chọn đúng mã này mới điều khiển được`
+      : "Bật để remote chỉ điều khiển màn này (các tab khác không bị kéo theo)";
+    updateDisplayBadge();
+  }
+
+  function defaultDisplayName() {
+    try {
+      const saved = sessionStorage.getItem(DISPLAY_NAME_KEY);
+      if (saved) return saved;
+    } catch (_) {}
+    return "Màn chiếu";
+  }
+
+  function registerDisplay() {
+    if (!socket?.connected) return;
+    socket.emit(
+      "display:register",
+      {
+        name: defaultDisplayName(),
+        index,
+        slideId: slides[index]?.dataset?.slideId || null,
+      },
+      (res) => {
+        if (res?.ok) {
+          displayId = res.id;
+          displayCode = res.code || null;
+          updateRemoteButton();
+        }
+      }
+    );
+  }
+
+  function unregisterDisplay() {
+    displayId = null;
+    displayCode = null;
+    if (!socket?.connected) return;
+    socket.emit("display:unregister");
+    updateDisplayBadge();
+  }
+
+  function setFollowRemote(on, persist = true) {
+    followRemote = Boolean(on);
+    if (persist) {
+      try {
+        sessionStorage.setItem(DISPLAY_KEY, followRemote ? "1" : "0");
+      } catch (_) {}
+    }
+    updateRemoteButton();
+    if (followRemote) {
+      ensureSocket();
+      registerDisplay();
+    } else {
+      unregisterDisplay();
+    }
   }
 
   function go(i, fromRemote) {
@@ -230,7 +338,7 @@
   });
 
   function applyDeckState(state) {
-    if (!state || !slides.length) return;
+    if (!followRemote || !state || !slides.length) return;
     let i = typeof state.index === "number" ? state.index : -1;
     if (state.slideId) {
       const found = slides.findIndex((s) => s.dataset.slideId === state.slideId);
@@ -242,10 +350,25 @@
     syncing = false;
   }
 
-  function connectDeck() {
+  function ensureSocket() {
     if (typeof io === "undefined") return;
+    if (socket) return;
     socket = io();
+    socket.on("connect", () => {
+      if (followRemote) registerDisplay();
+    });
     socket.on("deck:state", applyDeckState);
+    socket.on("display:identify", flashIdentify);
+  }
+
+  function wantsFollowRemoteOnBoot() {
+    try {
+      const params = new URLSearchParams(location.search);
+      if (params.get("display") === "1" || params.get("remote") === "1") return true;
+      return sessionStorage.getItem(DISPLAY_KEY) === "1";
+    } catch (_) {
+      return false;
+    }
   }
 
   async function boot() {
@@ -281,10 +404,13 @@
 
     buildRail();
     setMode("present");
+    updateRemoteButton();
+    btnRemote?.addEventListener("click", () => setFollowRemote(!followRemote));
 
     const hash = parseInt(location.hash.slice(1), 10);
     go(Number.isFinite(hash) && hash >= 1 ? hash - 1 : 0, true);
-    connectDeck();
+    // Mặc định độc lập — chỉ nhận remote khi bật trên màn chiếu
+    if (wantsFollowRemoteOnBoot()) setFollowRemote(true);
   }
 
   boot();
