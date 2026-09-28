@@ -2824,6 +2824,21 @@ body.mode-overview .controls {
   border-color: var(--accent) !important;
 }
 
+.controls-pen {
+  width: auto !important;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  font-size: 0.78rem !important;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.controls-pen.is-on {
+  background: #c45c26 !important;
+  border-color: #c45c26 !important;
+  color: #fff !important;
+}
+
 .controls-remote {
   width: auto !important;
   height: 2.5rem;
@@ -2831,6 +2846,116 @@ body.mode-overview .controls {
   font-size: 0.78rem !important;
   font-weight: 600;
   white-space: nowrap;
+}
+
+/* Pen / highlight overlay */
+.pen-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  touch-action: none;
+  cursor: crosshair;
+}
+
+.pen-canvas.is-active {
+  pointer-events: auto;
+}
+
+.pen-canvas.is-highlight {
+  cursor: cell;
+}
+
+.pen-canvas.is-eraser {
+  cursor: grab;
+}
+
+body.pen-mode {
+  user-select: none;
+}
+
+.pen-toolbar {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 55;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.55rem;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 32px rgba(12, 46, 40, 0.16);
+  backdrop-filter: blur(10px);
+}
+
+.pen-toolbar[hidden] {
+  display: none !important;
+}
+
+.pen-toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.pen-tool,
+.pen-action {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 0.4rem 0.65rem;
+  border-radius: 9px;
+  cursor: pointer;
+  line-height: 1.2;
+}
+
+.pen-tool.is-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.pen-action-off {
+  background: #fff5f0;
+  border-color: #e8c4bc;
+  color: #b33a2e;
+}
+
+.pen-color {
+  appearance: none;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  border: 2px solid rgba(20, 36, 31, 0.2);
+  background: var(--pen-swatch);
+  cursor: pointer;
+  padding: 0;
+}
+
+.pen-color.is-on {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-color: #fff;
+}
+
+@media (max-width: 700px) {
+  .pen-toolbar {
+    left: 0.5rem;
+    right: 0.5rem;
+    transform: none;
+    width: auto;
+  }
 }
 
 .controls-remote.is-on {

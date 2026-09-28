@@ -247,6 +247,7 @@
     syncRailActive();
     if (isOverview()) scrollRailIntoView();
     if (!fromRemote) emitGoto();
+    window.DeckPen?.setSlideIndex?.(index);
   }
 
   function next() {
@@ -263,6 +264,10 @@
   document.addEventListener("keydown", (e) => {
     if (document.body.classList.contains("modal-open") || window.isAppModalOpen?.()) {
       return;
+    }
+    if (window.DeckPen?.isActive?.()) {
+      // Pen mode owns Escape / space-as-draw; keep arrows for slide change
+      if (e.key === "Escape" || e.key === " " || e.key === "Enter") return;
     }
     if (e.key === "Escape") {
       e.preventDefault();
@@ -289,6 +294,10 @@
   document.addEventListener(
     "touchstart",
     (e) => {
+      if (window.DeckPen?.isActive?.()) {
+        touchX = null;
+        return;
+      }
       touchX = e.changedTouches[0].screenX;
     },
     { passive: true }
@@ -296,6 +305,10 @@
   document.addEventListener(
     "touchend",
     (e) => {
+      if (window.DeckPen?.isActive?.()) {
+        touchX = null;
+        return;
+      }
       if (touchX == null) return;
       const dx = e.changedTouches[0].screenX - touchX;
       if (Math.abs(dx) > 50) (dx < 0 ? next : prev)();
